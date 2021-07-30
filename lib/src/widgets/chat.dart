@@ -28,6 +28,7 @@ class Chat extends StatefulWidget {
     this.dateFormat,
     this.dateLocale,
     this.disableImageGallery,
+    this.imageGalleryBackgroundColor = Colors.black,
     this.emptyState,
     this.isAttachmentUploading,
     this.isLastPage,
@@ -75,6 +76,9 @@ class Chat extends StatefulWidget {
 
   /// Disable automatic image preview on tap.
   final bool? disableImageGallery;
+
+  /// Background color of the image gallery.
+  final Color? imageGalleryBackgroundColor;
 
   /// Allows you to change what the user sees when there are no messages.
   /// `emptyChatPlaceholder` and `emptyChatPlaceholderTextStyle` are ignored
@@ -212,6 +216,7 @@ class _ChatState extends State<Chat> {
               imageProvider: Conditional().getProvider(_gallery[index].uri),
             ),
             itemCount: _gallery.length,
+            backgroundDecoration: BoxDecoration(color: widget.imageGalleryBackgroundColor),
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
             onPageChanged: _onPageChanged,
