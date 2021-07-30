@@ -224,21 +224,23 @@ class _ChatState extends State<Chat> {
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 16,
-            top: 56,
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                border: Border.all(color: const Color(0xffF3F4F7)),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.close),
-                iconSize: 20,
-                padding: EdgeInsets.zero,
-                onPressed: _onCloseGalleryPressed,
+            right: 10,
+            top: 10,
+            child: SafeArea(
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: const Color(0xffF3F4F7)),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  onPressed: _onCloseGalleryPressed,
+                ),
               ),
             ),
           ),
