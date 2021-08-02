@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
@@ -27,6 +28,7 @@ class Chat extends StatefulWidget {
     this.dateFormat,
     this.dateLocale,
     this.disableImageGallery,
+    this.imageGalleryBackgroundColor = Colors.black,
     this.emptyState,
     this.isAttachmentUploading,
     this.isLastPage,
@@ -74,6 +76,9 @@ class Chat extends StatefulWidget {
 
   /// Disable automatic image preview on tap.
   final bool? disableImageGallery;
+
+  /// Background color of the image gallery.
+  final Color? imageGalleryBackgroundColor;
 
   /// Allows you to change what the user sees when there are no messages.
   /// `emptyChatPlaceholder` and `emptyChatPlaceholderTextStyle` are ignored
@@ -207,9 +212,11 @@ class _ChatState extends State<Chat> {
           PhotoViewGallery.builder(
             builder: (BuildContext context, int index) =>
                 PhotoViewGalleryPageOptions(
+              minScale: PhotoViewComputedScale.contained,
               imageProvider: Conditional().getProvider(_gallery[index].uri),
             ),
             itemCount: _gallery.length,
+            backgroundDecoration: BoxDecoration(color: widget.imageGalleryBackgroundColor),
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
             onPageChanged: _onPageChanged,
@@ -217,11 +224,24 @@ class _ChatState extends State<Chat> {
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 16,
-            top: 56,
-            child: CloseButton(
-              color: Colors.white,
-              onPressed: _onCloseGalleryPressed,
+            right: 10,
+            top: 10,
+            child: SafeArea(
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: const Color(0xffF3F4F7)),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  onPressed: _onCloseGalleryPressed,
+                ),
+              ),
             ),
           ),
         ],
