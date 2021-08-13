@@ -22,9 +22,15 @@ class Input extends StatefulWidget {
     Key? key,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
+    this.inputSuffixIcon,
+    this.onTapInput,
     required this.onSendPressed,
     this.onTextChanged,
   }) : super(key: key);
+
+  final Widget? inputSuffixIcon;
+
+  final void Function()? onTapInput;
 
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
@@ -129,24 +135,28 @@ class _InputState extends State<Input> {
           },
           child: Focus(
             autofocus: true,
-            child: Material(
-              borderRadius:
-                  InheritedChatTheme.of(context).theme.inputBorderRadius,
-              color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  24 + _query.padding.left,
-                  20,
-                  24 + _query.padding.right,
-                  20 + _query.viewInsets.bottom + _query.padding.bottom,
-                ),
-                child: Row(
-                  children: [
-                    if (widget.onAttachmentPressed != null) _leftWidget(),
-                    Expanded(
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                15 + _query.padding.left,
+                5,
+                15 + _query.padding.right,
+                5 + _query.viewInsets.bottom + _query.padding.bottom,
+              ),
+              child: Row(
+                children: [
+                  if (widget.onAttachmentPressed != null) _leftWidget(),
+                  Expanded(
+                    child: Material(
+                      color: const Color(0xffF3F4F7),
+                      borderRadius:
+                      InheritedChatTheme.of(context).theme.inputBorderRadius,
                       child: TextField(
                         controller: _textController,
-                        decoration: InputDecoration.collapsed(
+                        onTap: widget.onTapInput,
+                        decoration: InputDecoration(
+                          suffixIcon: widget.inputSuffixIcon,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(12.0),
                           hintStyle: InheritedChatTheme.of(context)
                               .theme
                               .inputTextStyle
@@ -175,14 +185,14 @@ class _InputState extends State<Input> {
                         textCapitalization: TextCapitalization.sentences,
                       ),
                     ),
-                    Visibility(
-                      visible: _sendButtonVisible,
-                      child: SendButton(
-                        onPressed: _handleSendPressed,
-                      ),
+                  ),
+                  Visibility(
+                    visible: _sendButtonVisible,
+                    child: SendButton(
+                      onPressed: _handleSendPressed,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
