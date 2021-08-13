@@ -22,11 +22,14 @@ class Input extends StatefulWidget {
     Key? key,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
+    this.disableInput = false,
     this.inputSuffixIcon,
     this.onTapInput,
     required this.onSendPressed,
     this.onTextChanged,
   }) : super(key: key);
+
+  final bool? disableInput;
 
   final Widget? inputSuffixIcon;
 
@@ -151,6 +154,7 @@ class _InputState extends State<Input> {
                       borderRadius:
                       InheritedChatTheme.of(context).theme.inputBorderRadius,
                       child: TextField(
+                        readOnly: widget.disableInput!,
                         controller: _textController,
                         onTap: widget.onTapInput,
                         decoration: InputDecoration(
