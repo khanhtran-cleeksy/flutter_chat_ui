@@ -190,6 +190,11 @@ class _ChatPageState extends State<ChatPage> {
         onMessageTap: _handleMessageTap,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
+        onTapInput: () {},
+        inputSuffixIcon: GestureDetector(
+          onTap: () {},
+          child: const Icon(Icons.tag_faces_rounded),
+        ),
         imageGalleryBackgroundColor: Colors.white,
         user: _user,
       ),
