@@ -24,6 +24,7 @@ class Chat extends StatefulWidget {
   const Chat({
     Key? key,
     this.buildCustomMessage,
+    this.buildMessageAvatar,
     this.customDateHeaderText,
     this.dateFormat,
     this.dateLocale,
@@ -55,6 +56,8 @@ class Chat extends StatefulWidget {
 
   /// See [Message.buildCustomMessage]
   final Widget Function(types.Message)? buildCustomMessage;
+
+  final Widget Function(types.Message)? buildMessageAvatar;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -286,6 +289,7 @@ class _ChatState extends State<Chat> {
       return Message(
         key: ValueKey(message.id),
         buildCustomMessage: widget.buildCustomMessage,
+        buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,
         onMessageLongPress: widget.onMessageLongPress,
