@@ -197,6 +197,22 @@ class _ChatPageState extends State<ChatPage> {
         ),
         imageGalleryBackgroundColor: Colors.white,
         user: _user,
+        showUserAvatars: true,
+        buildMessageAvatar: (message) {
+          final hasImage = message.author.imageUrl != null;
+          return Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: CircleAvatar(
+              backgroundImage:
+              hasImage ? NetworkImage(message.author.imageUrl!) : null,
+              backgroundColor: Colors.blueGrey,
+              radius: 16,
+              child: !hasImage
+                  ? Text(message.author.firstName!)
+                  : null,
+            ),
+          );
+        },
       ),
     );
   }

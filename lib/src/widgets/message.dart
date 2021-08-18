@@ -15,6 +15,7 @@ class Message extends StatelessWidget {
   const Message({
     Key? key,
     this.buildCustomMessage,
+    this.buildMessageAvatar,
     required this.message,
     required this.messageWidth,
     this.onMessageLongPress,
@@ -30,6 +31,9 @@ class Message extends StatelessWidget {
 
   /// Build a custom message inside predefined bubble
   final Widget Function(types.CustomMessage)? buildCustomMessage;
+
+  /// Build message avatar
+  final Widget Function(types.Message)? buildMessageAvatar;
 
   /// Any message type
   final types.Message message;
@@ -203,7 +207,10 @@ class Message extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!_currentUserIsAuthor && showUserAvatars) _buildAvatar(context),
+          if (!_currentUserIsAuthor && showUserAvatars)
+            buildMessageAvatar != null
+                ? buildMessageAvatar!(message)
+                : _buildAvatar(context),
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: messageWidth.toDouble(),
