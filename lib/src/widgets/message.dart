@@ -35,6 +35,9 @@ class Message extends StatelessWidget {
   /// Build message avatar
   final Widget Function(types.Message)? buildMessageAvatar;
 
+  /// Build message avatar
+  final Widget Function(types.Message)? buildMessageAvatar;
+
   /// Any message type
   final types.Message message;
 
