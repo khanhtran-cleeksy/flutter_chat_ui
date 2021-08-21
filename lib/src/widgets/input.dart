@@ -66,9 +66,12 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
-    final _partialText = types.PartialText(text: _textController.text.trim());
-    widget.onSendPressed(_partialText);
-    _textController.clear();
+    final trimmedText = _textController.text.trim();
+    if (trimmedText != '') {
+      final _partialText = types.PartialText(text: trimmedText);
+      widget.onSendPressed(_partialText);
+      _textController.clear();
+    }
   }
 
   void _handleTextControllerChange() {
@@ -85,7 +88,7 @@ class _InputState extends State<Input> {
         width: 24,
         child: CircularProgressIndicator(
           backgroundColor: Colors.transparent,
-          strokeWidth: 2,
+          strokeWidth: 1.5,
           valueColor: AlwaysStoppedAnimation<Color>(
             InheritedChatTheme.of(context).theme.inputTextColor,
           ),
