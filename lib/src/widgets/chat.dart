@@ -25,6 +25,7 @@ class Chat extends StatefulWidget {
     Key? key,
     this.buildCustomMessage,
     this.buildMessageAvatar,
+    this.inputHeader = const <Widget>[],
     this.customDateHeaderText,
     this.dateFormat,
     this.dateLocale,
@@ -58,6 +59,8 @@ class Chat extends StatefulWidget {
   final Widget Function(types.Message)? buildCustomMessage;
 
   final Widget Function(types.Message)? buildMessageAvatar;
+
+  final List<Widget> inputHeader;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -398,6 +401,7 @@ class _ChatState extends State<Chat> {
                         onSendPressed: widget.onSendPressed,
                         onTextChanged: widget.onTextChanged,
                         onTapInput: widget.onTapInput,
+                        inputHeader: widget.inputHeader,
                         inputSuffixIcon: widget.inputSuffixIcon,
                         disableInput: widget.disableInput,
                       ),

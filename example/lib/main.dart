@@ -10,6 +10,9 @@ import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
+import 'attachment_list.dart';
+import 'message_attachment.dart';
+
 void main() {
   initializeDateFormatting().then((_) => runApp(const MyApp()));
 }
@@ -34,6 +37,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   List<types.Message> _messages = [];
+  List<AttachmentFile> _attachments = [];
   final _user = const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c');
 
   @override
@@ -48,16 +52,26 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _handleAtachmentPressed() {
+  void _handleAttachmentPressed() {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
         return SafeArea(
           child: SizedBox(
-            height: 144,
+            height: 200,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _handleAttachmentSelection();
+                  },
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Attachment'),
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
@@ -110,6 +124,25 @@ class _ChatPageState extends State<ChatPage> {
       );
 
       _addMessage(message);
+    }
+  }
+
+  void _handleAttachmentSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+    if (result != null) {
+      setState(() {
+        _attachments.add(
+          AttachmentFile(
+            uuid: const Uuid().v4(),
+            name: result.files.single.name,
+            size: result.files.single.size,
+            uri: result.files.single.path ?? '',
+            mimeType: lookupMimeType(result.files.single.path ?? ''),
+          ),
+        );
+      });
     }
   }
 
@@ -186,7 +219,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       body: Chat(
         messages: _messages,
-        onAttachmentPressed: _handleAtachmentPressed,
+        onAttachmentPressed: _handleAttachmentPressed,
         onMessageTap: _handleMessageTap,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
@@ -204,15 +237,28 @@ class _ChatPageState extends State<ChatPage> {
             margin: const EdgeInsets.only(right: 8),
             child: CircleAvatar(
               backgroundImage:
-              hasImage ? NetworkImage(message.author.imageUrl!) : null,
+                  hasImage ? NetworkImage(message.author.imageUrl!) : null,
               backgroundColor: Colors.blueGrey,
               radius: 16,
-              child: !hasImage
-                  ? Text(message.author.firstName!)
-                  : null,
+              child: !hasImage ? Text(message.author.firstName!) : null,
             ),
           );
         },
+        inputHeader: [
+          if (_attachments.isNotEmpty)
+            AttachmentList(
+              initialData: _attachments,
+              onAddMore: _handleAttachmentSelection,
+              onAttachmentTap: (AttachmentFile attachment) async {
+                await OpenFile.open(attachment.uri);
+              },
+              onUpdate: (List<AttachmentFile> attachments) {
+                setState(() {
+                  _attachments = attachments;
+                });
+              },
+            ),
+        ],
       ),
     );
   }
