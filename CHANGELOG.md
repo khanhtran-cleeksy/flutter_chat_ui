@@ -1,3 +1,24 @@
+## 1.3.2
+
+- Fix memory leak. Thanks @m-j-g for reporting!
+- Add `customBottomWidget` useful to remove the input and create a channel view
+- Add `inputPadding`, `inputTextCursorColor` and `inputTextDecoration` to the theme for the additional input customization
+
+## 1.3.1
+
+- Rename `buildCustomMessage` to `customMessageBuilder`
+- Update dependencies
+
+## 1.3.0
+
+- Chat is now correctly rendered in not full screen mode. Removed `SafeArea` from the lib itself, wrap `Chat` component if needed. Thanks @m-j-g for reporting!
+- Fixes crash deserializing `previewData`. Thanks @m-j-g for reporting!
+- Fixed automatic scroll to bottom issue in paginated mode. Thanks @m-j-g for reporting!
+- Added `userAvatarImageBackgroundColor`. Thanks @pierrebarbaroux for the PR!
+- Added `sendButtonVisibilityMode`. Thanks @halildurmus for the PR!
+- Added Turkish localization. Thanks @halildurmus for the PR!
+- Update dependencies
+
 ## 1.2.0
 
 - Fix avatar color when using an image. Thanks @m-j-g for reporting!

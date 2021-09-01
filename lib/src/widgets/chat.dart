@@ -10,6 +10,7 @@ import '../conditional/conditional.dart';
 import '../models/date_header.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
+import '../models/send_button_visibility_mode.dart';
 import '../util.dart';
 import 'chat_list.dart';
 import 'inherited_chat_theme.dart';
@@ -17,13 +18,15 @@ import 'inherited_user.dart';
 import 'input.dart';
 import 'message.dart';
 
-/// Entry widget, represents the complete chat
+/// Entry widget, represents the complete chat. If you wrap it in [SafeArea] and
+/// it should be full screen, set [SafeArea]'s `bottom` to `false`.
 class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
     Key? key,
-    this.buildCustomMessage,
+    this.customBottomWidget,
     this.customDateHeaderText,
+    this.customMessageBuilder,
     this.dateFormat,
     this.dateLocale,
     this.disableImageGallery,
@@ -40,6 +43,7 @@ class Chat extends StatefulWidget {
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
+    this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.showUserAvatars = false,
     this.showUserNames = false,
     this.theme = const DefaultChatTheme(),
@@ -48,8 +52,9 @@ class Chat extends StatefulWidget {
     required this.user,
   }) : super(key: key);
 
-  /// See [Message.buildCustomMessage]
-  final Widget Function(types.Message)? buildCustomMessage;
+  /// Allows you to replace the default Input widget e.g. if you want to create
+  /// a channel view.
+  final Widget? customBottomWidget;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -59,6 +64,9 @@ class Chat extends StatefulWidget {
   /// for example today, yesterday and before. Or you can just return the same
   /// date header for any message.
   final String Function(DateTime)? customDateHeaderText;
+
+  /// See [Message.customMessageBuilder]
+  final Widget Function(types.Message)? customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -88,7 +96,7 @@ class Chat extends StatefulWidget {
 
   /// Localized copy. Extend [ChatL10n] class to create your own copy or use
   /// existing one, like the default [ChatL10nEn]. You can customize only
-  /// certain variables, see more here [ChatL10nEn].
+  /// certain properties, see more here [ChatL10nEn].
   final ChatL10n l10n;
 
   /// List of [types.Message] to render in the chat widget
@@ -119,6 +127,9 @@ class Chat extends StatefulWidget {
   /// See [Input.onTextChanged]
   final void Function(String)? onTextChanged;
 
+  /// See [Input.sendButtonVisibilityMode]
+  final SendButtonVisibilityMode sendButtonVisibilityMode;
+
   /// See [Message.showUserAvatars]
   final bool showUserAvatars;
 
@@ -128,7 +139,7 @@ class Chat extends StatefulWidget {
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
-  /// variables, see more here [DefaultChatTheme].
+  /// properties, see more here [DefaultChatTheme].
   final ChatTheme theme;
 
   /// Allows you to customize the time format. IMPORTANT: only for the time,
@@ -182,7 +193,7 @@ class _ChatState extends State<Chat> {
     }
   }
 
-  Widget _buildEmptyState() {
+  Widget _emptyStateBuilder() {
     return widget.emptyState ??
         Container(
           alignment: Alignment.center,
@@ -197,7 +208,7 @@ class _ChatState extends State<Chat> {
         );
   }
 
-  Widget _buildImageGallery() {
+  Widget _imageGalleryBuilder() {
     return Dismissible(
       key: const Key('photo_view_gallery'),
       direction: DismissDirection.down,
@@ -229,7 +240,24 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget _buildMessage(Object object) {
+  Widget _imageGalleryLoadingBuilder(
+    BuildContext context,
+    ImageChunkEvent? event,
+  ) {
+    return Center(
+      child: SizedBox(
+        width: 20.0,
+        height: 20.0,
+        child: CircularProgressIndicator(
+          value: event == null || event.expectedTotalBytes == null
+              ? 0
+              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+        ),
+      ),
+    );
+  }
+
+  Widget _messageBuilder(Object object, BoxConstraints constraints) {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
@@ -251,12 +279,12 @@ class _ChatState extends State<Chat> {
       final message = map['message']! as types.Message;
       final _messageWidth =
           widget.showUserAvatars && message.author.id != widget.user.id
-              ? min(MediaQuery.of(context).size.width * 0.72, 440).floor()
-              : min(MediaQuery.of(context).size.width * 0.78, 440).floor();
+              ? min(constraints.maxWidth * 0.72, 440).floor()
+              : min(constraints.maxWidth * 0.78, 440).floor();
 
       return Message(
         key: ValueKey(message.id),
-        buildCustomMessage: widget.buildCustomMessage,
+        customMessageBuilder: widget.customMessageBuilder,
         message: message,
         messageWidth: _messageWidth,
         onMessageLongPress: widget.onMessageLongPress,
@@ -277,23 +305,6 @@ class _ChatState extends State<Chat> {
         usePreviewData: widget.usePreviewData,
       );
     }
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-    BuildContext context,
-    ImageChunkEvent? event,
-  ) {
-    return Center(
-      child: SizedBox(
-        width: 20.0,
-        height: 20.0,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 
   void _onCloseGalleryPressed() {
@@ -336,40 +347,44 @@ class _ChatState extends State<Chat> {
             children: [
               Container(
                 color: widget.theme.backgroundColor,
-                child: SafeArea(
-                  bottom: false,
-                  child: Column(
-                    children: [
-                      Flexible(
-                        child: widget.messages.isEmpty
-                            ? SizedBox.expand(
-                                child: _buildEmptyState(),
-                              )
-                            : GestureDetector(
-                                onTap: () => FocusManager.instance.primaryFocus
-                                    ?.unfocus(),
-                                child: ChatList(
+                child: Column(
+                  children: [
+                    Flexible(
+                      child: widget.messages.isEmpty
+                          ? SizedBox.expand(
+                              child: _emptyStateBuilder(),
+                            )
+                          : GestureDetector(
+                              onTap: () =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
+                              child: LayoutBuilder(
+                                builder: (BuildContext context,
+                                        BoxConstraints constraints) =>
+                                    ChatList(
                                   isLastPage: widget.isLastPage,
                                   itemBuilder: (item, index) =>
-                                      _buildMessage(item),
+                                      _messageBuilder(item, constraints),
                                   items: _chatMessages,
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
                                       widget.onEndReachedThreshold,
                                 ),
                               ),
-                      ),
-                      Input(
-                        isAttachmentUploading: widget.isAttachmentUploading,
-                        onAttachmentPressed: widget.onAttachmentPressed,
-                        onSendPressed: widget.onSendPressed,
-                        onTextChanged: widget.onTextChanged,
-                      ),
-                    ],
-                  ),
+                            ),
+                    ),
+                    widget.customBottomWidget ??
+                        Input(
+                          isAttachmentUploading: widget.isAttachmentUploading,
+                          onAttachmentPressed: widget.onAttachmentPressed,
+                          onSendPressed: widget.onSendPressed,
+                          onTextChanged: widget.onTextChanged,
+                          sendButtonVisibilityMode:
+                              widget.sendButtonVisibilityMode,
+                        ),
+                  ],
                 ),
               ),
-              if (_isImageViewVisible) _buildImageGallery(),
+              if (_isImageViewVisible) _imageGalleryBuilder(),
             ],
           ),
         ),
