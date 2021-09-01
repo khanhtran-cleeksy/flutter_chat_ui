@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:image_picker/image_picker.dart';
@@ -117,10 +117,10 @@ class _ChatPageState extends State<ChatPage> {
         author: _user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         id: const Uuid().v4(),
-        mimeType: lookupMimeType(result.files.single.path ?? ''),
+        mimeType: lookupMimeType(result.files.single.path),
         name: result.files.single.name,
         size: result.files.single.size,
-        uri: result.files.single.path ?? '',
+        uri: result.files.single.path,
       );
 
       _addMessage(message);
@@ -217,48 +217,51 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Chat(
-        messages: _messages,
-        onAttachmentPressed: _handleAttachmentPressed,
-        onMessageTap: _handleMessageTap,
-        onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
-        onTapInput: () {},
-        inputSuffixIcon: GestureDetector(
-          onTap: () {},
-          child: const Icon(Icons.tag_faces_rounded),
+      body: SafeArea(
+        bottom: false,
+        child: Chat(
+          messages: _messages,
+          onAttachmentPressed: _handleAttachmentPressed,
+          onMessageTap: _handleMessageTap,
+          onPreviewDataFetched: _handlePreviewDataFetched,
+          onSendPressed: _handleSendPressed,
+          onTapInput: () {},
+          inputSuffixIcon: GestureDetector(
+            onTap: () {},
+            child: const Icon(Icons.tag_faces_rounded),
+          ),
+          imageGalleryBackgroundColor: Colors.white,
+          user: _user,
+          showUserAvatars: true,
+          buildMessageAvatar: (message) {
+            final hasImage = message.author.imageUrl != null;
+            return Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: CircleAvatar(
+                backgroundImage:
+                hasImage ? NetworkImage(message.author.imageUrl!) : null,
+                backgroundColor: Colors.blueGrey,
+                radius: 16,
+                child: !hasImage ? Text(message.author.firstName!) : null,
+              ),
+            );
+          },
+          inputHeader: [
+            if (_attachments.isNotEmpty)
+              AttachmentList(
+                initialData: _attachments,
+                onAddMore: _handleAttachmentSelection,
+                onAttachmentTap: (AttachmentFile attachment) async {
+                  await OpenFile.open(attachment.uri);
+                },
+                onUpdate: (List<AttachmentFile> attachments) {
+                  setState(() {
+                    _attachments = attachments;
+                  });
+                },
+              ),
+          ],
         ),
-        imageGalleryBackgroundColor: Colors.white,
-        user: _user,
-        showUserAvatars: true,
-        buildMessageAvatar: (message) {
-          final hasImage = message.author.imageUrl != null;
-          return Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: CircleAvatar(
-              backgroundImage:
-                  hasImage ? NetworkImage(message.author.imageUrl!) : null,
-              backgroundColor: Colors.blueGrey,
-              radius: 16,
-              child: !hasImage ? Text(message.author.firstName!) : null,
-            ),
-          );
-        },
-        inputHeader: [
-          if (_attachments.isNotEmpty)
-            AttachmentList(
-              initialData: _attachments,
-              onAddMore: _handleAttachmentSelection,
-              onAttachmentTap: (AttachmentFile attachment) async {
-                await OpenFile.open(attachment.uri);
-              },
-              onUpdate: (List<AttachmentFile> attachments) {
-                setState(() {
-                  _attachments = attachments;
-                });
-              },
-            ),
-        ],
       ),
     );
   }
