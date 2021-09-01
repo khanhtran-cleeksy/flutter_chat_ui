@@ -319,7 +319,7 @@ class _ChatState extends State<Chat> {
 
       return Message(
         key: ValueKey(message.id),
-        customBottomWidget: widget.customBottomWidget,
+        customMessageBuilder: widget.customMessageBuilder,
         buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,
@@ -418,6 +418,8 @@ class _ChatState extends State<Chat> {
                           inputHeader: widget.inputHeader,
                           inputSuffixIcon: widget.inputSuffixIcon,
                           disableInput: widget.disableInput,
+                          sendButtonVisibilityMode:
+                              widget.sendButtonVisibilityMode,
                         ),
                   ],
                 ),

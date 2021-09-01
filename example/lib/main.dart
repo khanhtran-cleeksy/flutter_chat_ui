@@ -138,8 +138,8 @@ class _ChatPageState extends State<ChatPage> {
             uuid: const Uuid().v4(),
             name: result.files.single.name,
             size: result.files.single.size,
-            uri: result.files.single.path ?? '',
-            mimeType: lookupMimeType(result.files.single.path ?? ''),
+            uri: result.files.single.path,
+            mimeType: lookupMimeType(result.files.single.path),
           ),
         );
       });
@@ -246,6 +246,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
             );
           },
+          sendButtonVisibilityMode: SendButtonVisibilityMode.always,
           inputHeader: [
             if (_attachments.isNotEmpty)
               AttachmentList(

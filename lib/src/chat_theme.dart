@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 // For internal usage only. Use values from theme itself.
 
@@ -230,7 +231,7 @@ class DefaultChatTheme extends ChatTheme {
     ),
     Color errorColor = ERROR,
     Widget? errorIcon,
-    Color inputBackgroundColor = NEUTRAL_7,
+    Color inputBackgroundColor = SECONDARY,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
       top: Radius.circular(20),
       bottom: Radius.circular(20),
