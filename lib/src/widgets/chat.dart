@@ -24,6 +24,8 @@ class Chat extends StatefulWidget {
   const Chat({
     Key? key,
     this.buildCustomMessage,
+    this.buildMessageAvatar,
+    this.inputHeader = const <Widget>[],
     this.customDateHeaderText,
     this.dateFormat,
     this.dateLocale,
@@ -39,6 +41,9 @@ class Chat extends StatefulWidget {
     this.onEndReachedThreshold,
     this.onMessageLongPress,
     this.onMessageTap,
+    this.disableInput = false,
+    this.inputSuffixIcon,
+    this.onTapInput,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
@@ -52,6 +57,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.buildCustomMessage]
   final Widget Function(types.Message)? buildCustomMessage;
+
+  final Widget Function(types.Message)? buildMessageAvatar;
+
+  final List<Widget> inputHeader;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -123,6 +132,12 @@ class Chat extends StatefulWidget {
 
   /// See [Input.onTextChanged]
   final void Function(String)? onTextChanged;
+
+  final bool? disableInput;
+
+  final Widget? inputSuffixIcon;
+
+  final void Function()? onTapInput;
 
   /// See [Message.showUserAvatars]
   final bool showUserAvatars;
@@ -277,6 +292,7 @@ class _ChatState extends State<Chat> {
       return Message(
         key: ValueKey(message.id),
         buildCustomMessage: widget.buildCustomMessage,
+        buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,
         onMessageLongPress: widget.onMessageLongPress,
@@ -384,6 +400,10 @@ class _ChatState extends State<Chat> {
                         onAttachmentPressed: widget.onAttachmentPressed,
                         onSendPressed: widget.onSendPressed,
                         onTextChanged: widget.onTextChanged,
+                        onTapInput: widget.onTapInput,
+                        inputHeader: widget.inputHeader,
+                        inputSuffixIcon: widget.inputSuffixIcon,
+                        disableInput: widget.disableInput,
                       ),
                     ],
                   ),

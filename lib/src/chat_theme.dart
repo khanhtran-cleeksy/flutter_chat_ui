@@ -212,11 +212,12 @@ class DefaultChatTheme extends ChatTheme {
     ),
     Color errorColor = ERROR,
     Widget? errorIcon,
-    Color inputBackgroundColor = NEUTRAL_0,
+    Color inputBackgroundColor = NEUTRAL_7,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
       top: Radius.circular(20),
+      bottom: Radius.circular(20),
     ),
-    Color inputTextColor = NEUTRAL_7,
+    Color inputTextColor = NEUTRAL_0,
     TextStyle inputTextStyle = const TextStyle(
       fontFamily: 'Avenir',
       fontSize: 16,
