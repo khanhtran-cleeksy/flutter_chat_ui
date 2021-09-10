@@ -29,6 +29,7 @@ class Input extends StatefulWidget {
     this.inputHeader = const <Widget>[],
     required this.onSendPressed,
     this.onTextChanged,
+    this.onTextFieldTap,
     required this.sendButtonVisibilityMode,
   }) : super(key: key);
 
@@ -55,6 +56,9 @@ class Input extends StatefulWidget {
 
   /// Will be called whenever the text inside [TextField] changes
   final void Function(String)? onTextChanged;
+
+  /// Will be called on [TextField] tap
+  final void Function()? onTextFieldTap;
 
   /// Controls the visibility behavior of the [SendButton] based on the
   /// [TextField] state inside the [Input] widget.
@@ -215,6 +219,16 @@ class _InputState extends State<Input> {
                                   .theme
                                   .inputTextStyle
                                   .copyWith(
+                          focusNode: _inputFocusNode,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 5,
+                          minLines: 1,
+                          onChanged: widget.onTextChanged,
+                          onTap: widget.onTextFieldTap,
+                          style: InheritedChatTheme.of(context)
+                              .theme
+                              .inputTextStyle
+                              .copyWith(
                                 color: InheritedChatTheme.of(context)
                                     .theme
                                     .inputTextColor,
