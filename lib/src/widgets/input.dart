@@ -25,7 +25,6 @@ class Input extends StatefulWidget {
     this.onAttachmentPressed,
     this.disableInput = false,
     this.inputSuffixIcon,
-    this.onTapInput,
     this.inputHeader = const <Widget>[],
     required this.onSendPressed,
     this.onTextChanged,
@@ -38,8 +37,6 @@ class Input extends StatefulWidget {
   final Widget? inputSuffixIcon;
 
   final List<Widget> inputHeader;
-
-  final void Function()? onTapInput;
 
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
@@ -192,7 +189,6 @@ class _InputState extends State<Input> {
                             TextField(
                               readOnly: widget.disableInput!,
                               controller: _textController,
-                              onTap: widget.onTapInput,
                               decoration: InputDecoration(
                                 suffixIcon: widget.inputSuffixIcon,
                                 border: InputBorder.none,
@@ -201,11 +197,11 @@ class _InputState extends State<Input> {
                                     .theme
                                     .inputTextStyle
                                     .copyWith(
-                                  color: InheritedChatTheme.of(context)
-                                      .theme
-                                      .inputTextColor
-                                      .withOpacity(0.5),
-                                ),
+                                      color: InheritedChatTheme.of(context)
+                                          .theme
+                                          .inputTextColor
+                                          .withOpacity(0.5),
+                                    ),
                                 hintText: InheritedL10n.of(context)
                                     .l10n
                                     .inputPlaceholder,
@@ -215,24 +211,15 @@ class _InputState extends State<Input> {
                               maxLines: 5,
                               minLines: 1,
                               onChanged: widget.onTextChanged,
+                              onTap: widget.onTextFieldTap,
                               style: InheritedChatTheme.of(context)
                                   .theme
                                   .inputTextStyle
                                   .copyWith(
-                          focusNode: _inputFocusNode,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: 5,
-                          minLines: 1,
-                          onChanged: widget.onTextChanged,
-                          onTap: widget.onTextFieldTap,
-                          style: InheritedChatTheme.of(context)
-                              .theme
-                              .inputTextStyle
-                              .copyWith(
-                                color: InheritedChatTheme.of(context)
-                                    .theme
-                                    .inputTextColor,
-                              ),
+                                    color: InheritedChatTheme.of(context)
+                                        .theme
+                                        .inputTextColor,
+                                  ),
                               textCapitalization: TextCapitalization.sentences,
                             ),
                           ],

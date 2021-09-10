@@ -43,6 +43,9 @@ dependencies:
   open_file: ^3.2.1
   uuid: ^3.0.4
 
+dependency_overrides:
+  meta: ^1.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

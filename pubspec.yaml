@@ -26,6 +26,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+dependency_overrides:
+  meta: ^1.7.0
+
 flutter:
   assets:
     - packages/flutter_chat_ui/assets/icon-attachment.png

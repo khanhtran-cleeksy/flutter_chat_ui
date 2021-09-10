@@ -46,7 +46,6 @@ class Chat extends StatefulWidget {
     this.onMessageTap,
     this.disableInput = false,
     this.inputSuffixIcon,
-    this.onTapInput,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
@@ -145,8 +144,6 @@ class Chat extends StatefulWidget {
   final bool? disableInput;
 
   final Widget? inputSuffixIcon;
-
-  final void Function()? onTapInput;
 
   /// See [Input.onTextFieldTap]
   final void Function()? onTextFieldTap;
@@ -418,7 +415,6 @@ class _ChatState extends State<Chat> {
                           onAttachmentPressed: widget.onAttachmentPressed,
                           onSendPressed: widget.onSendPressed,
                           onTextChanged: widget.onTextChanged,
-                          onTapInput: widget.onTapInput,
                           inputHeader: widget.inputHeader,
                           inputSuffixIcon: widget.inputSuffixIcon,
                           disableInput: widget.disableInput,

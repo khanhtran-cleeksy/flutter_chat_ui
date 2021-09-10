@@ -225,7 +225,7 @@ class _ChatPageState extends State<ChatPage> {
           onMessageTap: _handleMessageTap,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
-          onTapInput: () {},
+          onTextFieldTap: () {},
           inputSuffixIcon: GestureDetector(
             onTap: () {},
             child: const Icon(Icons.tag_faces_rounded),
