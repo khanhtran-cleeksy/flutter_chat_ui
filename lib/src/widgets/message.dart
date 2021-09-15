@@ -35,6 +35,9 @@ class Message extends StatelessWidget {
   /// Build message avatar
   final Widget Function(types.Message)? buildMessageAvatar;
 
+  /// Build a custom text message inside predefined bubble
+  final Widget Function(types.TextMessage, Function(types.TextMessage, types.PreviewData)? , bool, bool)? textMessageBuilder;
+
   /// Any message type
   final types.Message message;
 
@@ -122,7 +125,9 @@ class Message extends StatelessWidget {
         );
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
-        return TextMessage(
+        return textMessageBuilder != null
+            ? textMessageBuilder!(textMessage, onPreviewDataFetched, showName, usePreviewData)
+            : TextMessage(
           message: textMessage,
           onPreviewDataFetched: onPreviewDataFetched,
           showName: showName,
