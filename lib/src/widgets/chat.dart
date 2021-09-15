@@ -25,7 +25,6 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
     Key? key,
-    this.textMessageBuilder,
     this.customBottomWidget,
     this.buildMessageAvatar,
     this.inputHeader = const <Widget>[],
@@ -36,6 +35,8 @@ class Chat extends StatefulWidget {
     this.disableImageGallery,
     this.imageGalleryBackgroundColor = Colors.black,
     this.emptyState,
+    this.fileMessageBuilder,
+    this.imageMessageBuilder,
     this.isAttachmentUploading,
     this.isLastPage,
     this.l10n = const ChatL10nEn(),
@@ -54,6 +55,7 @@ class Chat extends StatefulWidget {
     this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.showUserAvatars = false,
     this.showUserNames = false,
+    this.textMessageBuilder,
     this.theme = const DefaultChatTheme(),
     this.timeFormat,
     this.usePreviewData = true,
@@ -79,10 +81,8 @@ class Chat extends StatefulWidget {
   final String Function(DateTime)? customDateHeaderText;
 
   /// See [Message.customMessageBuilder]
-  final Widget Function(types.Message)? customMessageBuilder;
-
-  /// See [Message.textMessageBuilder]
-  final Widget Function(types.TextMessage, Function(types.TextMessage, types.PreviewData)? , bool, bool)? textMessageBuilder;
+  final Widget Function(types.CustomMessage, {int messageWidth})?
+      customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -106,6 +106,14 @@ class Chat extends StatefulWidget {
   /// `emptyChatPlaceholder` and `emptyChatPlaceholderTextStyle` are ignored
   /// in this case.
   final Widget? emptyState;
+
+  /// See [Message.fileMessageBuilder]
+  final Widget Function(types.FileMessage, {int messageWidth})?
+      fileMessageBuilder;
+
+  /// See [Message.imageMessageBuilder]
+  final Widget Function(types.ImageMessage, {int messageWidth})?
+      imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
@@ -162,6 +170,10 @@ class Chat extends StatefulWidget {
   /// Show user names for received messages. Useful for a group chat. Will be
   /// shown only on text messages.
   final bool showUserNames;
+
+  /// See [Message.textMessageBuilder]
+  final Widget Function(types.TextMessage, {int messageWidth, bool showName})?
+      textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -329,6 +341,8 @@ class _ChatState extends State<Chat> {
       return Message(
         key: ValueKey(message.id),
         customMessageBuilder: widget.customMessageBuilder,
+        fileMessageBuilder: widget.fileMessageBuilder,
+        imageMessageBuilder: widget.imageMessageBuilder,
         buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,
