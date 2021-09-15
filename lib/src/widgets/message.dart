@@ -93,7 +93,7 @@ class Message extends StatelessWidget {
       InheritedChatTheme.of(context).theme.userAvatarNameColors,
     );
     final hasImage = message.author.imageUrl != null;
-    final name = getUserName(message.author);
+    final initials = getUserInitials(message.author);
 
     return showAvatar
         ? Container(
@@ -109,7 +109,7 @@ class Message extends StatelessWidget {
               radius: 16,
               child: !hasImage
                   ? Text(
-                      name.isEmpty ? '' : name[0].toUpperCase(),
+                      initials,
                       style: InheritedChatTheme.of(context)
                           .theme
                           .userAvatarTextStyle,
