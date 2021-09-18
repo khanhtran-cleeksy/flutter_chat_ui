@@ -112,7 +112,7 @@ class _ChatPageState extends State<ChatPage> {
       type: FileType.any,
     );
 
-    if (result != null) {
+    if (result != null && result.files.single.path != null) {
       final message = types.FileMessage(
         author: _user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
