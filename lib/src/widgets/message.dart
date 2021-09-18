@@ -14,6 +14,7 @@ class Message extends StatelessWidget {
   /// Creates a particular message from any message type
   const Message({
     Key? key,
+    this.bubbleBuilder,
     this.customMessageBuilder,
     this.buildMessageAvatar,
     this.fileMessageBuilder,
@@ -32,8 +33,19 @@ class Message extends StatelessWidget {
     required this.usePreviewData,
   }) : super(key: key);
 
+  /// Customize the default bubble using this function. `child` is a content
+  /// you should render inside your bubble, `message` is a current message
+  /// (contains `author` inside) and `nextMessageInGroup` allows you to see
+  /// if the message is a part of a group (messages are grouped when written
+  /// in quick succession by the same author)
+  final Widget Function(
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
+
   /// Build a custom message inside predefined bubble
-  final Widget Function(types.CustomMessage, {int messageWidth})?
+  final Widget Function(types.CustomMessage, {required int messageWidth})?
       customMessageBuilder;
 
   /// Build message avatar
@@ -42,11 +54,11 @@ class Message extends StatelessWidget {
   /// Build a custom text message inside predefined bubble
   final Widget Function(types.TextMessage, Function(types.TextMessage, types.PreviewData)? , bool, bool)? textMessageBuilder;
   /// Build a file message inside predefined bubble
-  final Widget Function(types.FileMessage, {int messageWidth})?
+  final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
 
   /// Build an image message inside predefined bubble
-  final Widget Function(types.ImageMessage, {int messageWidth})?
+  final Widget Function(types.ImageMessage, {required int messageWidth})?
       imageMessageBuilder;
 
   /// Any message type
@@ -81,8 +93,11 @@ class Message extends StatelessWidget {
   final bool showUserAvatars;
 
   /// Build a text message inside predefined bubble.
-  final Widget Function(types.TextMessage, {int messageWidth, bool showName})?
-      textMessageBuilder;
+  final Widget Function(
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
 
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
@@ -118,6 +133,32 @@ class Message extends StatelessWidget {
             ),
           )
         : const SizedBox(width: 40);
+  }
+
+  Widget _bubbleBuilder(
+    BuildContext context,
+    BorderRadius borderRadius,
+    bool currentUserIsAuthor,
+  ) {
+    return bubbleBuilder != null
+        ? bubbleBuilder!(
+            _messageBuilder(),
+            message: message,
+            nextMessageInGroup: roundBorder,
+          )
+        : Container(
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              color: !currentUserIsAuthor ||
+                      message.type == types.MessageType.image
+                  ? InheritedChatTheme.of(context).theme.secondaryColor
+                  : InheritedChatTheme.of(context).theme.primaryColor,
+            ),
+            child: ClipRRect(
+              borderRadius: borderRadius,
+              child: _messageBuilder(),
+            ),
+          );
   }
 
   Widget _messageBuilder() {
@@ -248,18 +289,10 @@ class Message extends StatelessWidget {
                 GestureDetector(
                   onLongPress: () => onMessageLongPress?.call(message),
                   onTap: () => onMessageTap?.call(message),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: _borderRadius,
-                      color: !_currentUserIsAuthor ||
-                              message.type == types.MessageType.image
-                          ? InheritedChatTheme.of(context).theme.secondaryColor
-                          : InheritedChatTheme.of(context).theme.primaryColor,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: _borderRadius,
-                      child: _messageBuilder(),
-                    ),
+                  child: _bubbleBuilder(
+                    context,
+                    _borderRadius,
+                    _currentUserIsAuthor,
                   ),
                 ),
               ],

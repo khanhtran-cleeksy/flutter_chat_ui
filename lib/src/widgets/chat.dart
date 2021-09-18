@@ -25,6 +25,7 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
     Key? key,
+    this.bubbleBuilder,
     this.customBottomWidget,
     this.buildMessageAvatar,
     this.inputHeader = const <Widget>[],
@@ -63,6 +64,13 @@ class Chat extends StatefulWidget {
     required this.inputContent,
   }) : super(key: key);
 
+  /// See [Message.bubbleBuilder]
+  final Widget Function(
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
+
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
   final Widget? customBottomWidget;
@@ -81,7 +89,7 @@ class Chat extends StatefulWidget {
   final String Function(DateTime)? customDateHeaderText;
 
   /// See [Message.customMessageBuilder]
-  final Widget Function(types.CustomMessage, {int messageWidth})?
+  final Widget Function(types.CustomMessage, {required int messageWidth})?
       customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
@@ -108,11 +116,11 @@ class Chat extends StatefulWidget {
   final Widget? emptyState;
 
   /// See [Message.fileMessageBuilder]
-  final Widget Function(types.FileMessage, {int messageWidth})?
+  final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
 
   /// See [Message.imageMessageBuilder]
-  final Widget Function(types.ImageMessage, {int messageWidth})?
+  final Widget Function(types.ImageMessage, {required int messageWidth})?
       imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
@@ -172,8 +180,11 @@ class Chat extends StatefulWidget {
   final bool showUserNames;
 
   /// See [Message.textMessageBuilder]
-  final Widget Function(types.TextMessage, {int messageWidth, bool showName})?
-      textMessageBuilder;
+  final Widget Function(
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -340,6 +351,7 @@ class _ChatState extends State<Chat> {
 
       return Message(
         key: ValueKey(message.id),
+        bubbleBuilder: widget.bubbleBuilder,
         customMessageBuilder: widget.customMessageBuilder,
         fileMessageBuilder: widget.fileMessageBuilder,
         imageMessageBuilder: widget.imageMessageBuilder,
