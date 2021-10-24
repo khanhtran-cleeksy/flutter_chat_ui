@@ -52,8 +52,8 @@ abstract class ChatTheme {
   const ChatTheme({
     required this.attachmentButtonIcon,
     required this.backgroundColor,
+    required this.dateDividerMargin,
     required this.dateDividerTextStyle,
-    required this.dateDividerPadding,
     required this.deliveredIcon,
     required this.documentIcon,
     required this.emptyChatPlaceholderTextStyle,
@@ -98,11 +98,11 @@ abstract class ChatTheme {
   /// Used as a background color of a chat widget
   final Color backgroundColor;
 
+  /// Margin around date dividers
+  final EdgeInsetsGeometry dateDividerMargin;
+
   /// Text style of the date dividers
   final TextStyle dateDividerTextStyle;
-
-  /// Padding around date dividers
-  final EdgeInsets dateDividerPadding;
 
   /// Icon for message's `delivered` status. For the best look use size of 16.
   final Widget? deliveredIcon;
@@ -233,16 +233,16 @@ class DefaultChatTheme extends ChatTheme {
   const DefaultChatTheme({
     Widget? attachmentButtonIcon,
     Color backgroundColor = neutral7,
+    EdgeInsetsGeometry dateDividerMargin = const EdgeInsets.only(
+      bottom: 32,
+      top: 16,
+    ),
     TextStyle dateDividerTextStyle = const TextStyle(
       color: neutral2,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
-    ),
-    EdgeInsets dateDividerPadding = const EdgeInsets.only(
-      bottom: 32,
-      top: 16,
     ),
     Widget? deliveredIcon,
     Widget? documentIcon,
@@ -360,8 +360,8 @@ class DefaultChatTheme extends ChatTheme {
   }) : super(
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
+          dateDividerMargin: dateDividerMargin,
           dateDividerTextStyle: dateDividerTextStyle,
-          dateDividerPadding: dateDividerPadding,
           deliveredIcon: deliveredIcon,
           documentIcon: documentIcon,
           emptyChatPlaceholderTextStyle: emptyChatPlaceholderTextStyle,
@@ -412,16 +412,16 @@ class DarkChatTheme extends ChatTheme {
   const DarkChatTheme({
     Widget? attachmentButtonIcon,
     Color backgroundColor = dark,
+    EdgeInsetsGeometry dateDividerMargin = const EdgeInsets.only(
+      bottom: 32,
+      top: 16,
+    ),
     TextStyle dateDividerTextStyle = const TextStyle(
       color: neutral7,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
-    ),
-    EdgeInsets dateDividerPadding = const EdgeInsets.only(
-      bottom: 32,
-      top: 16,
     ),
     Widget? deliveredIcon,
     Widget? documentIcon,
@@ -538,8 +538,8 @@ class DarkChatTheme extends ChatTheme {
   }) : super(
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
+          dateDividerMargin: dateDividerMargin,
           dateDividerTextStyle: dateDividerTextStyle,
-          dateDividerPadding: dateDividerPadding,
           deliveredIcon: deliveredIcon,
           documentIcon: documentIcon,
           emptyChatPlaceholderTextStyle: emptyChatPlaceholderTextStyle,
