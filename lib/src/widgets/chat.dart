@@ -1,12 +1,10 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../conditional/conditional.dart';
@@ -50,6 +48,7 @@ class Chat extends StatefulWidget {
     this.l10n = const ChatL10nEn(),
     required this.messages,
     this.onAttachmentPressed,
+    this.onBackgroundTap,
     this.onEndReached,
     this.onEndReachedThreshold,
     this.onMessageLongPress,
@@ -67,7 +66,6 @@ class Chat extends StatefulWidget {
     this.theme = const DefaultChatTheme(),
     this.timeFormat,
     this.usePreviewData = true,
-    this.onBackgroundTap,
     required this.user,
     required this.inputContent,
   }) : super(key: key);
@@ -164,6 +162,9 @@ class Chat extends StatefulWidget {
 
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
+
+  /// Called when user taps on background
+  final void Function()? onBackgroundTap;
 
   /// See [ChatList.onEndReached]
   final Future<void> Function()? onEndReached;
