@@ -1,10 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../conditional/conditional.dart';
@@ -65,6 +67,7 @@ class Chat extends StatefulWidget {
     this.theme = const DefaultChatTheme(),
     this.timeFormat,
     this.usePreviewData = true,
+    this.onBackgroundTap,
     required this.user,
     required this.inputContent,
   }) : super(key: key);
@@ -227,6 +230,9 @@ class Chat extends StatefulWidget {
   final types.User user;
 
   final String inputContent;
+
+  /// Called when users tap on the background
+  final void Function()? onBackgroundTap;
 
   @override
   _ChatState createState() => _ChatState();
@@ -452,8 +458,10 @@ class _ChatState extends State<Chat> {
                               child: _emptyStateBuilder(),
                             )
                           : GestureDetector(
-                              onTap: () =>
-                                  FocusManager.instance.primaryFocus?.unfocus(),
+                              onTap: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                widget.onBackgroundTap?.call();
+                              },
                               child: LayoutBuilder(
                                 builder: (BuildContext context,
                                         BoxConstraints constraints) =>
