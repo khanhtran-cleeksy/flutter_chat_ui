@@ -53,6 +53,7 @@ abstract class ChatTheme {
     required this.attachmentButtonIcon,
     required this.backgroundColor,
     required this.dateDividerTextStyle,
+    required this.dateDividerPadding,
     required this.deliveredIcon,
     required this.documentIcon,
     required this.emptyChatPlaceholderTextStyle,
@@ -99,6 +100,9 @@ abstract class ChatTheme {
 
   /// Text style of the date dividers
   final TextStyle dateDividerTextStyle;
+
+  /// Padding around date dividers
+  final EdgeInsets dateDividerPadding;
 
   /// Icon for message's `delivered` status. For the best look use size of 16.
   final Widget? deliveredIcon;
@@ -236,6 +240,10 @@ class DefaultChatTheme extends ChatTheme {
       fontWeight: FontWeight.w800,
       height: 1.333,
     ),
+    EdgeInsets dateDividerPadding = const EdgeInsets.only(
+      bottom: 32,
+      top: 16,
+    ),
     Widget? deliveredIcon,
     Widget? documentIcon,
     TextStyle emptyChatPlaceholderTextStyle = const TextStyle(
@@ -353,6 +361,7 @@ class DefaultChatTheme extends ChatTheme {
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
           dateDividerTextStyle: dateDividerTextStyle,
+          dateDividerPadding: dateDividerPadding,
           deliveredIcon: deliveredIcon,
           documentIcon: documentIcon,
           emptyChatPlaceholderTextStyle: emptyChatPlaceholderTextStyle,
@@ -409,6 +418,10 @@ class DarkChatTheme extends ChatTheme {
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
+    ),
+    EdgeInsets dateDividerPadding = const EdgeInsets.only(
+      bottom: 32,
+      top: 16,
     ),
     Widget? deliveredIcon,
     Widget? documentIcon,
@@ -526,6 +539,7 @@ class DarkChatTheme extends ChatTheme {
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
           dateDividerTextStyle: dateDividerTextStyle,
+          dateDividerPadding: dateDividerPadding,
           deliveredIcon: deliveredIcon,
           documentIcon: documentIcon,
           emptyChatPlaceholderTextStyle: emptyChatPlaceholderTextStyle,
