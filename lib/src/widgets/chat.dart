@@ -59,6 +59,7 @@ class Chat extends StatefulWidget {
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
+    this.scrollPhysics,
     this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.showUserAvatars = false,
     this.showUserNames = false,
@@ -194,6 +195,9 @@ class Chat extends StatefulWidget {
 
   /// See [Input.onTextFieldTap]
   final void Function()? onTextFieldTap;
+
+  /// See [ChatList.scrollPhysics]
+  final ScrollPhysics? scrollPhysics;
 
   /// See [Input.sendButtonVisibilityMode]
   final SendButtonVisibilityMode sendButtonVisibilityMode;
@@ -474,6 +478,7 @@ class _ChatState extends State<Chat> {
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
                                       widget.onEndReachedThreshold,
+                                  scrollPhysics: widget.scrollPhysics,
                                 ),
                               ),
                             ),
