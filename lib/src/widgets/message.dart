@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'file_message.dart';
 import 'image_message.dart';
@@ -16,8 +17,10 @@ class Message extends StatelessWidget {
     Key? key,
     this.bubbleBuilder,
     this.customMessageBuilder,
+    required this.emojiEnlargementBehavior,
     this.buildMessageAvatar,
     this.fileMessageBuilder,
+    required this.hideBackgroundOnEmojiMessages,
     this.imageMessageBuilder,
     required this.message,
     required this.messageWidth,
@@ -48,6 +51,11 @@ class Message extends StatelessWidget {
   final Widget Function(types.CustomMessage, {required int messageWidth})?
       customMessageBuilder;
 
+  /// Controls the enlargement behavior of the emojis in the
+  /// [types.TextMessage].
+  /// Defaults to [EmojiEnlargementBehavior.multi].
+  final EmojiEnlargementBehavior emojiEnlargementBehavior;
+
   /// Build message avatar
   final Widget Function(types.Message)? buildMessageAvatar;
 
@@ -56,6 +64,9 @@ class Message extends StatelessWidget {
   /// Build a file message inside predefined bubble
   final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
+
+  /// Hide background for messages containing only emojis.
+  final bool hideBackgroundOnEmojiMessages;
 
   /// Build an image message inside predefined bubble
   final Widget Function(types.ImageMessage, {required int messageWidth})?
@@ -293,6 +304,7 @@ class Message extends StatelessWidget {
                     context,
                     _borderRadius,
                     _currentUserIsAuthor,
+                    _enlargeEmojis,
                   ),
                 ),
               ],

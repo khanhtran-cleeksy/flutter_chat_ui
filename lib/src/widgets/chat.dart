@@ -9,6 +9,7 @@ import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../conditional/conditional.dart';
 import '../models/date_header.dart';
+import '../models/emoji_enlargement_behavior.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
 import '../models/send_button_visibility_mode.dart';
@@ -35,10 +36,12 @@ class Chat extends StatefulWidget {
     this.dateHeaderThreshold = 900000,
     this.dateLocale,
     this.disableImageGallery,
+    this.emojiEnlargementBehavior = EmojiEnlargementBehavior.multi,
     this.imageGalleryBackgroundColor = Colors.black,
     this.emptyState,
     this.fileMessageBuilder,
     this.groupMessagesThreshold = 60000,
+    this.hideBackgroundOnEmojiMessages = true,
     this.imageMessageBuilder,
     this.isAttachmentUploading,
     this.isLastPage,
@@ -115,6 +118,9 @@ class Chat extends StatefulWidget {
   /// Disable automatic image preview on tap.
   final bool? disableImageGallery;
 
+  /// See [Message.emojiEnlargementBehavior]
+  final EmojiEnlargementBehavior emojiEnlargementBehavior;
+
   /// Background color of the image gallery.
   final Color? imageGalleryBackgroundColor;
 
@@ -131,6 +137,9 @@ class Chat extends StatefulWidget {
   /// Default value is 1 minute, 60000 ms. When time between two messages
   /// is lower than this threshold, they will be visually grouped.
   final int groupMessagesThreshold;
+
+  /// See [Message.hideBackgroundOnEmojiMessages]
+  final bool hideBackgroundOnEmojiMessages;
 
   /// See [Message.imageMessageBuilder]
   final Widget Function(types.ImageMessage, {required int messageWidth})?
@@ -368,7 +377,9 @@ class _ChatState extends State<Chat> {
         key: ValueKey(message.id),
         bubbleBuilder: widget.bubbleBuilder,
         customMessageBuilder: widget.customMessageBuilder,
+        emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
         fileMessageBuilder: widget.fileMessageBuilder,
+        hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
         imageMessageBuilder: widget.imageMessageBuilder,
         buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
