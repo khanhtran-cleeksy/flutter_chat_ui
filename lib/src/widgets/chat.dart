@@ -48,6 +48,7 @@ class Chat extends StatefulWidget {
     this.l10n = const ChatL10nEn(),
     required this.messages,
     this.onAttachmentPressed,
+    this.onAvatarTap,
     this.onBackgroundTap,
     this.onEndReached,
     this.onEndReachedThreshold,
@@ -166,6 +167,9 @@ class Chat extends StatefulWidget {
 
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
+
+  /// See [Message.onAvatarTap]
+  final void Function(types.User)? onAvatarTap;
 
   /// Called when user taps on background
   final void Function()? onBackgroundTap;
@@ -401,6 +405,7 @@ class _ChatState extends State<Chat> {
         buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,
+        onAvatarTap: widget.onAvatarTap,
         onMessageLongPress: widget.onMessageLongPress,
         onMessageStatusLongPress: widget.onMessageStatusLongPress,
         onMessageStatusTap: widget.onMessageStatusTap,
