@@ -57,6 +57,7 @@ class Chat extends StatefulWidget {
     this.disableInput = false,
     this.inputSuffixIcon,
     this.onMessageStatusTap,
+    this.onMessageTap,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
@@ -181,11 +182,11 @@ class Chat extends StatefulWidget {
   /// See [Message.onMessageStatusLongPress]
   final void Function(types.Message)? onMessageStatusLongPress;
 
-  /// See [Message.onMessageTap]
-  final void Function(types.Message)? onMessageTap;
-
   /// See [Message.onMessageStatusTap]
   final void Function(types.Message)? onMessageStatusTap;
+
+  /// See [Message.onMessageTap]
+  final void Function(types.Message)? onMessageTap;
 
   /// See [Message.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
@@ -402,6 +403,7 @@ class _ChatState extends State<Chat> {
         messageWidth: _messageWidth,
         onMessageLongPress: widget.onMessageLongPress,
         onMessageStatusLongPress: widget.onMessageStatusLongPress,
+        onMessageStatusTap: widget.onMessageStatusTap,
         onMessageTap: (tappedMessage) {
           if (tappedMessage is types.ImageMessage &&
               widget.disableImageGallery != true) {
@@ -410,7 +412,6 @@ class _ChatState extends State<Chat> {
 
           widget.onMessageTap?.call(tappedMessage);
         },
-        onMessageStatusTap: widget.onMessageStatusTap,
         onPreviewDataFetched: _onPreviewDataFetched,
         roundBorder: map['nextMessageInGroup'] == true,
         showAvatar: map['nextMessageInGroup'] == false,
