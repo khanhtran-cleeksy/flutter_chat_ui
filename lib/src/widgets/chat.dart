@@ -57,6 +57,7 @@ class Chat extends StatefulWidget {
     this.timeFormat,
     this.usePreviewData = true,
     required this.user,
+    required this.inputContent,
   }) : super(key: key);
 
   /// Allows you to replace the default Input widget e.g. if you want to create
@@ -176,6 +177,8 @@ class Chat extends StatefulWidget {
   /// See [InheritedUser.user]
   final types.User user;
 
+  final String inputContent;
+
   @override
   _ChatState createState() => _ChatState();
 }
@@ -243,7 +246,8 @@ class _ChatState extends State<Chat> {
               imageProvider: Conditional().getProvider(_gallery[index].uri),
             ),
             itemCount: _gallery.length,
-            backgroundDecoration: BoxDecoration(color: widget.imageGalleryBackgroundColor),
+            backgroundDecoration:
+                BoxDecoration(color: widget.imageGalleryBackgroundColor),
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
             onPageChanged: _onPageChanged,
@@ -421,6 +425,7 @@ class _ChatState extends State<Chat> {
                           onTextFieldTap: widget.onTextFieldTap,
                           sendButtonVisibilityMode:
                               widget.sendButtonVisibilityMode,
+                          inputContent: widget.inputContent
                         ),
                   ],
                 ),

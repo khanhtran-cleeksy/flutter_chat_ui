@@ -30,6 +30,7 @@ class Input extends StatefulWidget {
     this.onTextChanged,
     this.onTextFieldTap,
     required this.sendButtonVisibilityMode,
+    required this.inputContent,
   }) : super(key: key);
 
   final bool? disableInput;
@@ -62,6 +63,8 @@ class Input extends StatefulWidget {
   /// Defaults to [SendButtonVisibilityMode.editing].
   final SendButtonVisibilityMode sendButtonVisibilityMode;
 
+  final String inputContent;
+
   @override
   _InputState createState() => _InputState();
 }
@@ -75,6 +78,11 @@ class _InputState extends State<Input> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.inputContent.trim().isNotEmpty) {
+      _textController.clear();
+      _textController.text = widget.inputContent;
+    }
 
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible = _textController.text.trim() != '';
