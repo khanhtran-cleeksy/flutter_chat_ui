@@ -8,6 +8,7 @@ import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../conditional/conditional.dart';
 import '../models/date_header.dart';
+import '../models/emoji_enlargement_behavior.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
 import '../models/send_button_visibility_mode.dart';
@@ -24,34 +25,54 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
     Key? key,
+    this.bubbleBuilder,
     this.customBottomWidget,
     this.customDateHeaderText,
     this.customMessageBuilder,
     this.dateFormat,
+    this.dateHeaderThreshold = 900000,
     this.dateLocale,
     this.disableImageGallery,
+    this.emojiEnlargementBehavior = EmojiEnlargementBehavior.multi,
     this.emptyState,
+    this.fileMessageBuilder,
+    this.groupMessagesThreshold = 60000,
+    this.hideBackgroundOnEmojiMessages = true,
+    this.imageMessageBuilder,
     this.isAttachmentUploading,
     this.isLastPage,
     this.l10n = const ChatL10nEn(),
     required this.messages,
     this.onAttachmentPressed,
+    this.onAvatarTap,
+    this.onBackgroundTap,
     this.onEndReached,
     this.onEndReachedThreshold,
     this.onMessageLongPress,
+    this.onMessageStatusLongPress,
+    this.onMessageStatusTap,
     this.onMessageTap,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
+    this.scrollPhysics,
     this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.showUserAvatars = false,
     this.showUserNames = false,
+    this.textMessageBuilder,
     this.theme = const DefaultChatTheme(),
     this.timeFormat,
     this.usePreviewData = true,
     required this.user,
   }) : super(key: key);
+
+  /// See [Message.bubbleBuilder]
+  final Widget Function(
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
@@ -67,7 +88,8 @@ class Chat extends StatefulWidget {
   final String Function(DateTime)? customDateHeaderText;
 
   /// See [Message.customMessageBuilder]
-  final Widget Function(types.Message)? customMessageBuilder;
+  final Widget Function(types.CustomMessage, {required int messageWidth})?
+      customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -75,6 +97,12 @@ class Chat extends StatefulWidget {
   /// make sure you initialize your [DateFormat] with a locale. See [customDateHeaderText]
   /// for more customization.
   final DateFormat? dateFormat;
+
+  /// Time (in ms) between two messages when we will render a date header.
+  /// Default value is 15 minutes, 900000 ms. When time between two messages
+  /// is higher than this threshold, date header will be rendered. Also,
+  /// not related to this value, date header will be rendered on every new day.
+  final int dateHeaderThreshold;
 
   /// Locale will be passed to the `Intl` package. Make sure you initialized
   /// date formatting in your app before passing any locale here, otherwise
@@ -84,10 +112,29 @@ class Chat extends StatefulWidget {
   /// Disable automatic image preview on tap.
   final bool? disableImageGallery;
 
+  /// See [Message.emojiEnlargementBehavior]
+  final EmojiEnlargementBehavior emojiEnlargementBehavior;
+
   /// Allows you to change what the user sees when there are no messages.
   /// `emptyChatPlaceholder` and `emptyChatPlaceholderTextStyle` are ignored
   /// in this case.
   final Widget? emptyState;
+
+  /// See [Message.fileMessageBuilder]
+  final Widget Function(types.FileMessage, {required int messageWidth})?
+      fileMessageBuilder;
+
+  /// Time (in ms) between two messages when we will visually group them.
+  /// Default value is 1 minute, 60000 ms. When time between two messages
+  /// is lower than this threshold, they will be visually grouped.
+  final int groupMessagesThreshold;
+
+  /// See [Message.hideBackgroundOnEmojiMessages]
+  final bool hideBackgroundOnEmojiMessages;
+
+  /// See [Message.imageMessageBuilder]
+  final Widget Function(types.ImageMessage, {required int messageWidth})?
+      imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
@@ -106,6 +153,12 @@ class Chat extends StatefulWidget {
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
 
+  /// See [Message.onAvatarTap]
+  final void Function(types.User)? onAvatarTap;
+
+  /// Called when user taps on background
+  final void Function()? onBackgroundTap;
+
   /// See [ChatList.onEndReached]
   final Future<void> Function()? onEndReached;
 
@@ -114,6 +167,12 @@ class Chat extends StatefulWidget {
 
   /// See [Message.onMessageLongPress]
   final void Function(types.Message)? onMessageLongPress;
+
+  /// See [Message.onMessageStatusLongPress]
+  final void Function(types.Message)? onMessageStatusLongPress;
+
+  /// See [Message.onMessageStatusTap]
+  final void Function(types.Message)? onMessageStatusTap;
 
   /// See [Message.onMessageTap]
   final void Function(types.Message)? onMessageTap;
@@ -131,6 +190,9 @@ class Chat extends StatefulWidget {
   /// See [Input.onTextFieldTap]
   final void Function()? onTextFieldTap;
 
+  /// See [ChatList.scrollPhysics]
+  final ScrollPhysics? scrollPhysics;
+
   /// See [Input.sendButtonVisibilityMode]
   final SendButtonVisibilityMode sendButtonVisibilityMode;
 
@@ -140,6 +202,13 @@ class Chat extends StatefulWidget {
   /// Show user names for received messages. Useful for a group chat. Will be
   /// shown only on text messages.
   final bool showUserNames;
+
+  /// See [Message.textMessageBuilder]
+  final Widget Function(
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -187,7 +256,9 @@ class _ChatState extends State<Chat> {
         widget.user,
         customDateHeaderText: widget.customDateHeaderText,
         dateFormat: widget.dateFormat,
+        dateHeaderThreshold: widget.dateHeaderThreshold,
         dateLocale: widget.dateLocale,
+        groupMessagesThreshold: widget.groupMessagesThreshold,
         showUserNames: widget.showUserNames,
         timeFormat: widget.timeFormat,
       );
@@ -265,10 +336,7 @@ class _ChatState extends State<Chat> {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
-        margin: const EdgeInsets.only(
-          bottom: 32,
-          top: 16,
-        ),
+        margin: widget.theme.dateDividerMargin,
         child: Text(
           object.text,
           style: widget.theme.dateDividerTextStyle,
@@ -288,10 +356,18 @@ class _ChatState extends State<Chat> {
 
       return Message(
         key: ValueKey(message.id),
+        bubbleBuilder: widget.bubbleBuilder,
         customMessageBuilder: widget.customMessageBuilder,
+        emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
+        fileMessageBuilder: widget.fileMessageBuilder,
+        hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
+        imageMessageBuilder: widget.imageMessageBuilder,
         message: message,
         messageWidth: _messageWidth,
+        onAvatarTap: widget.onAvatarTap,
         onMessageLongPress: widget.onMessageLongPress,
+        onMessageStatusLongPress: widget.onMessageStatusLongPress,
+        onMessageStatusTap: widget.onMessageStatusTap,
         onMessageTap: (tappedMessage) {
           if (tappedMessage is types.ImageMessage &&
               widget.disableImageGallery != true) {
@@ -306,6 +382,7 @@ class _ChatState extends State<Chat> {
         showName: map['showName'] == true,
         showStatus: map['showStatus'] == true,
         showUserAvatars: widget.showUserAvatars,
+        textMessageBuilder: widget.textMessageBuilder,
         usePreviewData: widget.usePreviewData,
       );
     }
@@ -359,8 +436,10 @@ class _ChatState extends State<Chat> {
                               child: _emptyStateBuilder(),
                             )
                           : GestureDetector(
-                              onTap: () =>
-                                  FocusManager.instance.primaryFocus?.unfocus(),
+                              onTap: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                widget.onBackgroundTap?.call();
+                              },
                               child: LayoutBuilder(
                                 builder: (BuildContext context,
                                         BoxConstraints constraints) =>
@@ -372,6 +451,7 @@ class _ChatState extends State<Chat> {
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
                                       widget.onEndReachedThreshold,
+                                  scrollPhysics: widget.scrollPhysics,
                                 ),
                               ),
                             ),

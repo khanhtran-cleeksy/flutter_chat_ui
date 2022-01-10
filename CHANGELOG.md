@@ -1,3 +1,49 @@
+## 1.5.3
+
+- Remove image blur
+- Update dependencies
+
+## 1.5.2
+
+- Add status icon tap and long press. Thanks @ikurek for the PR!
+- Add Traditional Chinese localization. Thanks @Wei-Hsun for the PR!
+- Add `onAvatarTap`
+- Fix local image preview on web
+- Update dependencies
+
+## 1.5.1
+
+- Increase tests coverage
+
+## 1.5.0
+
+- Remove `Avenir` as a default font family
+- Add Simplified Chinese localization. Thanks @roxetter for the PR!
+- Enlarge emoji in text messages that consist of emojis. See `emojiEnlargementBehavior` and `hideBackgroundOnEmojiMessages`. Thanks @halildurmus for the PR!
+- Add tap on background callback, `onBackgroundTap`. Thanks @diegonuja for the PR!
+- Add `ScrollPhysics` to the scroll view. Thanks @trixeenya for the PR!
+- Customizable margin for date dividers. See `dateDividerMargin` in theme. Thanks @ikurek for the PR!
+- Implemented configurable padding for status icons. See `statusIconPadding` in theme. Thanks @ikurek for the PR!
+- Update dependencies (requires Dart >=2.14.0)
+
+## 1.4.4
+
+- Add `dateHeaderThreshold` and `groupMessagesThreshold` (see the documentation comments)
+- Update dependencies
+
+## 1.4.3
+
+- Add `bubbleBuilder` to allow the chat bubble customization. See [documentation](https://docs.flyer.chat/flutter/chat-ui/advanced-usage#custom-chat-bubbles).
+
+## 1.4.2
+
+- Add `fileMessageBuilder`, `imageMessageBuilder` and `textMessageBuilder` for more customization options. Thanks @Androrier for the PR!
+- Fix avatar initials (show first letters of first and last names, instead of one, where applicable)
+
+## 1.4.1
+
+- Fix release on `pub.dev`
+
 ## 1.4.0
 
 - Update to Flutter 2.5

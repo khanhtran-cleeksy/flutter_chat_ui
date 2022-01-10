@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'file_message.dart';
 import 'image_message.dart';
@@ -14,10 +15,18 @@ class Message extends StatelessWidget {
   /// Creates a particular message from any message type
   const Message({
     Key? key,
+    this.bubbleBuilder,
     this.customMessageBuilder,
+    required this.emojiEnlargementBehavior,
+    this.fileMessageBuilder,
+    required this.hideBackgroundOnEmojiMessages,
+    this.imageMessageBuilder,
     required this.message,
     required this.messageWidth,
+    this.onAvatarTap,
     this.onMessageLongPress,
+    this.onMessageStatusLongPress,
+    this.onMessageStatusTap,
     this.onMessageTap,
     this.onPreviewDataFetched,
     required this.roundBorder,
@@ -25,11 +34,40 @@ class Message extends StatelessWidget {
     required this.showName,
     required this.showStatus,
     required this.showUserAvatars,
+    this.textMessageBuilder,
     required this.usePreviewData,
   }) : super(key: key);
 
+  /// Customize the default bubble using this function. `child` is a content
+  /// you should render inside your bubble, `message` is a current message
+  /// (contains `author` inside) and `nextMessageInGroup` allows you to see
+  /// if the message is a part of a group (messages are grouped when written
+  /// in quick succession by the same author)
+  final Widget Function(
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
+
   /// Build a custom message inside predefined bubble
-  final Widget Function(types.CustomMessage)? customMessageBuilder;
+  final Widget Function(types.CustomMessage, {required int messageWidth})?
+      customMessageBuilder;
+
+  /// Controls the enlargement behavior of the emojis in the
+  /// [types.TextMessage].
+  /// Defaults to [EmojiEnlargementBehavior.multi].
+  final EmojiEnlargementBehavior emojiEnlargementBehavior;
+
+  /// Build a file message inside predefined bubble
+  final Widget Function(types.FileMessage, {required int messageWidth})?
+      fileMessageBuilder;
+
+  /// Hide background for messages containing only emojis.
+  final bool hideBackgroundOnEmojiMessages;
+
+  /// Build an image message inside predefined bubble
+  final Widget Function(types.ImageMessage, {required int messageWidth})?
+      imageMessageBuilder;
 
   /// Any message type
   final types.Message message;
@@ -37,8 +75,17 @@ class Message extends StatelessWidget {
   /// Maximum message width
   final int messageWidth;
 
+  // Called when uses taps on an avatar
+  final void Function(types.User)? onAvatarTap;
+
   /// Called when user makes a long press on any message
   final void Function(types.Message)? onMessageLongPress;
+
+  /// Called when user makes a long press on status icon in any message
+  final void Function(types.Message)? onMessageStatusLongPress;
+
+  /// Called when user taps on status icon in any message
+  final void Function(types.Message)? onMessageStatusTap;
 
   /// Called when user taps on any message
   final void Function(types.Message)? onMessageTap;
@@ -62,6 +109,13 @@ class Message extends StatelessWidget {
   /// Show user avatars for received messages. Useful for a group chat.
   final bool showUserAvatars;
 
+  /// Build a text message inside predefined bubble.
+  final Widget Function(
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
+
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
 
@@ -71,31 +125,63 @@ class Message extends StatelessWidget {
       InheritedChatTheme.of(context).theme.userAvatarNameColors,
     );
     final hasImage = message.author.imageUrl != null;
-    final name = getUserName(message.author);
+    final initials = getUserInitials(message.author);
 
     return showAvatar
         ? Container(
             margin: const EdgeInsets.only(right: 8),
-            child: CircleAvatar(
-              backgroundColor: hasImage
-                  ? InheritedChatTheme.of(context)
-                      .theme
-                      .userAvatarImageBackgroundColor
-                  : color,
-              backgroundImage:
-                  hasImage ? NetworkImage(message.author.imageUrl!) : null,
-              radius: 16,
-              child: !hasImage
-                  ? Text(
-                      name.isEmpty ? '' : name[0].toUpperCase(),
-                      style: InheritedChatTheme.of(context)
-                          .theme
-                          .userAvatarTextStyle,
-                    )
-                  : null,
+            child: GestureDetector(
+              onTap: () => onAvatarTap?.call(message.author),
+              child: CircleAvatar(
+                backgroundColor: hasImage
+                    ? InheritedChatTheme.of(context)
+                        .theme
+                        .userAvatarImageBackgroundColor
+                    : color,
+                backgroundImage:
+                    hasImage ? NetworkImage(message.author.imageUrl!) : null,
+                radius: 16,
+                child: !hasImage
+                    ? Text(
+                        initials,
+                        style: InheritedChatTheme.of(context)
+                            .theme
+                            .userAvatarTextStyle,
+                      )
+                    : null,
+              ),
             ),
           )
         : const SizedBox(width: 40);
+  }
+
+  Widget _bubbleBuilder(
+    BuildContext context,
+    BorderRadius borderRadius,
+    bool currentUserIsAuthor,
+    bool enlargeEmojis,
+  ) {
+    return bubbleBuilder != null
+        ? bubbleBuilder!(
+            _messageBuilder(),
+            message: message,
+            nextMessageInGroup: roundBorder,
+          )
+        : enlargeEmojis && hideBackgroundOnEmojiMessages
+            ? _messageBuilder()
+            : Container(
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  color: !currentUserIsAuthor ||
+                          message.type == types.MessageType.image
+                      ? InheritedChatTheme.of(context).theme.secondaryColor
+                      : InheritedChatTheme.of(context).theme.primaryColor,
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child: _messageBuilder(),
+                ),
+              );
   }
 
   Widget _messageBuilder() {
@@ -103,27 +189,34 @@ class Message extends StatelessWidget {
       case types.MessageType.custom:
         final customMessage = message as types.CustomMessage;
         return customMessageBuilder != null
-            ? customMessageBuilder!(customMessage)
+            ? customMessageBuilder!(customMessage, messageWidth: messageWidth)
             : const SizedBox();
       case types.MessageType.file:
         final fileMessage = message as types.FileMessage;
-        return FileMessage(
-          message: fileMessage,
-        );
+        return fileMessageBuilder != null
+            ? fileMessageBuilder!(fileMessage, messageWidth: messageWidth)
+            : FileMessage(message: fileMessage);
       case types.MessageType.image:
         final imageMessage = message as types.ImageMessage;
-        return ImageMessage(
-          message: imageMessage,
-          messageWidth: messageWidth,
-        );
+        return imageMessageBuilder != null
+            ? imageMessageBuilder!(imageMessage, messageWidth: messageWidth)
+            : ImageMessage(message: imageMessage, messageWidth: messageWidth);
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
-        return TextMessage(
-          message: textMessage,
-          onPreviewDataFetched: onPreviewDataFetched,
-          showName: showName,
-          usePreviewData: usePreviewData,
-        );
+        return textMessageBuilder != null
+            ? textMessageBuilder!(
+                textMessage,
+                messageWidth: messageWidth,
+                showName: showName,
+              )
+            : TextMessage(
+                emojiEnlargementBehavior: emojiEnlargementBehavior,
+                hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
+                message: textMessage,
+                onPreviewDataFetched: onPreviewDataFetched,
+                showName: showName,
+                usePreviewData: usePreviewData,
+              );
       default:
         return const SizedBox();
     }
@@ -181,6 +274,11 @@ class Message extends StatelessWidget {
   Widget build(BuildContext context) {
     final _user = InheritedUser.of(context).user;
     final _currentUserIsAuthor = _user.id == message.author.id;
+    final _enlargeEmojis =
+        emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
+            message is types.TextMessage &&
+            isConsistsOfEmojis(
+                emojiEnlargementBehavior, message as types.TextMessage);
     final _messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
     final _borderRadius = BorderRadius.only(
@@ -218,18 +316,11 @@ class Message extends StatelessWidget {
                 GestureDetector(
                   onLongPress: () => onMessageLongPress?.call(message),
                   onTap: () => onMessageTap?.call(message),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: _borderRadius,
-                      color: !_currentUserIsAuthor ||
-                              message.type == types.MessageType.image
-                          ? InheritedChatTheme.of(context).theme.secondaryColor
-                          : InheritedChatTheme.of(context).theme.primaryColor,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: _borderRadius,
-                      child: _messageBuilder(),
-                    ),
+                  child: _bubbleBuilder(
+                    context,
+                    _borderRadius,
+                    _currentUserIsAuthor,
+                    _enlargeEmojis,
                   ),
                 ),
               ],
@@ -237,14 +328,15 @@ class Message extends StatelessWidget {
           ),
           if (_currentUserIsAuthor)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Center(
-                child: SizedBox(
-                  height: 16,
-                  width: 16,
-                  child: showStatus ? _statusBuilder(context) : null,
-                ),
-              ),
+              padding: InheritedChatTheme.of(context).theme.statusIconPadding,
+              child: showStatus
+                  ? GestureDetector(
+                      onLongPress: () =>
+                          onMessageStatusLongPress?.call(message),
+                      onTap: () => onMessageStatusTap?.call(message),
+                      child: _statusBuilder(context),
+                    )
+                  : null,
             ),
         ],
       ),
