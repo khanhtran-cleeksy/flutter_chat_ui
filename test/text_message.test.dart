@@ -12,6 +12,7 @@ void main() {
       MaterialApp(
         home: Material(
           child: Chat(
+            inputContent: '',
             messages: const [
               types.TextMessage(
                 author: types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
@@ -39,6 +40,7 @@ void main() {
       MaterialApp(
         home: Material(
           child: Chat(
+            inputContent: '',
             messages: const [
               types.TextMessage(
                 author: types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),

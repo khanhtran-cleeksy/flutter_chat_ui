@@ -92,6 +92,7 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              inputContent: '',
               messages: const [],
               onSendPressed: (types.PartialText message) => isCalled = true,
               user:
@@ -131,6 +132,7 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              inputContent: '',
               messages: const [],
               onAttachmentPressed: () => isCalled = true,
               onSendPressed: (types.PartialText message) => {},

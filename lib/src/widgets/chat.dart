@@ -58,7 +58,6 @@ class Chat extends StatefulWidget {
     this.disableInput = false,
     this.inputSuffixIcon,
     this.onMessageStatusTap,
-    this.onMessageTap,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
@@ -248,9 +247,6 @@ class Chat extends StatefulWidget {
   final types.User user;
 
   final String inputContent;
-
-  /// Called when users tap on the background
-  final void Function()? onBackgroundTap;
 
   @override
   _ChatState createState() => _ChatState();

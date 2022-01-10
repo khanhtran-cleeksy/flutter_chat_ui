@@ -63,7 +63,12 @@ class Message extends StatelessWidget {
   final Widget Function(types.Message)? buildMessageAvatar;
 
   /// Build a custom text message inside predefined bubble
-  final Widget Function(types.TextMessage, Function(types.TextMessage, types.PreviewData)? , bool, bool)? textMessageBuilder;
+  final Widget Function(
+      types.TextMessage,
+      Function(types.TextMessage, types.PreviewData)?,
+      bool,
+      bool)? textMessageBuilder;
+
   /// Build a file message inside predefined bubble
   final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
@@ -115,13 +120,6 @@ class Message extends StatelessWidget {
   /// Show user avatars for received messages. Useful for a group chat.
   final bool showUserAvatars;
 
-  /// Build a text message inside predefined bubble.
-  final Widget Function(
-    types.TextMessage, {
-    required int messageWidth,
-    required bool showName,
-  })? textMessageBuilder;
-
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
 
@@ -165,6 +163,7 @@ class Message extends StatelessWidget {
     BuildContext context,
     BorderRadius borderRadius,
     bool currentUserIsAuthor,
+    bool enlargeEmojis,
   ) {
     return bubbleBuilder != null
         ? bubbleBuilder!(
@@ -172,19 +171,21 @@ class Message extends StatelessWidget {
             message: message,
             nextMessageInGroup: roundBorder,
           )
-        : Container(
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              color: !currentUserIsAuthor ||
-                      message.type == types.MessageType.image
-                  ? InheritedChatTheme.of(context).theme.secondaryColor
-                  : InheritedChatTheme.of(context).theme.primaryColor,
-            ),
-            child: ClipRRect(
-              borderRadius: borderRadius,
-              child: _messageBuilder(),
-            ),
-          );
+        : enlargeEmojis && hideBackgroundOnEmojiMessages
+            ? _messageBuilder()
+            : Container(
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  color: !currentUserIsAuthor ||
+                          message.type == types.MessageType.image
+                      ? InheritedChatTheme.of(context).theme.secondaryColor
+                      : InheritedChatTheme.of(context).theme.primaryColor,
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child: _messageBuilder(),
+                ),
+              );
   }
 
   Widget _messageBuilder() {
@@ -206,18 +207,14 @@ class Message extends StatelessWidget {
             : ImageMessage(message: imageMessage, messageWidth: messageWidth);
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
-        return textMessageBuilder != null
-            ? textMessageBuilder!(
-                textMessage,
-                messageWidth: messageWidth,
-                showName: showName,
-              )
-            : TextMessage(
-                message: textMessage,
-                onPreviewDataFetched: onPreviewDataFetched,
-                showName: showName,
-                usePreviewData: usePreviewData,
-              );
+        return TextMessage(
+          emojiEnlargementBehavior: emojiEnlargementBehavior,
+          hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
+          message: textMessage,
+          onPreviewDataFetched: onPreviewDataFetched,
+          showName: showName,
+          usePreviewData: usePreviewData,
+        );
       default:
         return const SizedBox();
     }
@@ -289,7 +286,11 @@ class Message extends StatelessWidget {
       topLeft: Radius.circular(_messageBorderRadius),
       topRight: Radius.circular(_messageBorderRadius),
     );
-
+    final _enlargeEmojis =
+        emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
+            message is types.TextMessage &&
+            isConsistsOfEmojis(
+                emojiEnlargementBehavior, message as types.TextMessage);
     return Container(
       alignment:
           _currentUserIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
@@ -333,7 +334,13 @@ class Message extends StatelessWidget {
                       onLongPress: () =>
                           onMessageStatusLongPress?.call(message),
                       onTap: () => onMessageStatusTap?.call(message),
-                      child: _statusBuilder(context),
+                      child: Center(
+                        child: SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: _statusBuilder(context),
+                        ),
+                      ),
                     )
                   : null,
             ),
