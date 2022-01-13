@@ -259,8 +259,8 @@ class DefaultChatTheme extends ChatTheme {
     Widget? errorIcon,
     Color inputBackgroundColor = secondary,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
-      top: Radius.circular(20),
-      bottom: Radius.circular(20),
+      top: Radius.circular(16),
+      bottom: Radius.circular(16),
     ),
     EdgeInsetsGeometry inputPadding = EdgeInsets.zero,
     Color inputTextColor = neutral0,
@@ -428,7 +428,7 @@ class DarkChatTheme extends ChatTheme {
     Widget? errorIcon,
     Color inputBackgroundColor = secondaryDark,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
-      top: Radius.circular(20),
+      top: Radius.circular(16),
     ),
     EdgeInsetsGeometry inputPadding = EdgeInsets.zero,
     Color inputTextColor = neutral7,

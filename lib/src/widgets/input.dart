@@ -74,6 +74,8 @@ class _InputState extends State<Input> {
   final _inputFocusNode = FocusNode();
   bool _sendButtonVisible = false;
   final _textController = TextEditingController();
+  ValueNotifier<int> lengthTextNotifier = ValueNotifier(0);
+  static const LIMIT_CHARACTER = 2000;
 
   @override
   void initState() {
@@ -100,6 +102,7 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
+    lengthTextNotifier.value = 0;
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
@@ -191,57 +194,102 @@ class _InputState extends State<Input> {
                         borderRadius: InheritedChatTheme.of(context)
                             .theme
                             .inputBorderRadius,
-                        child: Column(
-                          children: [
-                            ...widget.inputHeader,
-                            TextField(
-                              readOnly: widget.disableInput!,
-                              controller: _textController,
-                              decoration: InputDecoration(
-                                suffixIcon: widget.inputSuffixIcon,
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(12.0),
-                                hintStyle: InheritedChatTheme.of(context)
-                                    .theme
-                                    .inputTextStyle
-                                    .copyWith(
-                                      color: InheritedChatTheme.of(context)
-                                          .theme
-                                          .inputTextColor
-                                          .withOpacity(0.5),
-                                    ),
-                                hintText: InheritedL10n.of(context)
-                                    .l10n
-                                    .inputPlaceholder,
-                              ),
-                              focusNode: _inputFocusNode,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 5,
-                              minLines: 1,
-                              onChanged: widget.onTextChanged,
-                              onTap: widget.onTextFieldTap,
-                              style: InheritedChatTheme.of(context)
-                                  .theme
-                                  .inputTextStyle
-                                  .copyWith(
-                                    color: InheritedChatTheme.of(context)
+                        child: ValueListenableBuilder(
+                          valueListenable: lengthTextNotifier,
+                          builder: (_, int length, __) {
+                            return Column(
+                              children: [
+                                ...widget.inputHeader,
+                                TextField(
+                                  readOnly: widget.disableInput!,
+                                  controller: _textController,
+                                  decoration: InputDecoration(
+                                    focusedBorder: length > LIMIT_CHARACTER
+                                        ? OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16.0),
+                                            borderSide: const BorderSide(
+                                              width: 1,
+                                              color: Colors.red,
+                                            ),
+                                          )
+                                        : null,
+                                    border: InputBorder.none,
+                                    suffixIcon: widget.inputSuffixIcon,
+                                    contentPadding: const EdgeInsets.all(12.0),
+                                    hintStyle: InheritedChatTheme.of(context)
                                         .theme
-                                        .inputTextColor,
+                                        .inputTextStyle
+                                        .copyWith(
+                                          color: InheritedChatTheme.of(context)
+                                              .theme
+                                              .inputTextColor
+                                              .withOpacity(0.5),
+                                        ),
+                                    hintText: InheritedL10n.of(context)
+                                        .l10n
+                                        .inputPlaceholder,
                                   ),
-                              textCapitalization: TextCapitalization.sentences,
-                            ),
-                          ],
+                                  focusNode: _inputFocusNode,
+                                  keyboardType: TextInputType.multiline,
+                                  maxLines: 5,
+                                  minLines: 1,
+                                  onChanged: (content) {
+                                    lengthTextNotifier.value = content.length;
+                                    if (widget.onTextChanged != null) {
+                                      widget.onTextChanged!(content);
+                                    }
+                                  },
+                                  onTap: widget.onTextFieldTap,
+                                  style: InheritedChatTheme.of(context)
+                                      .theme
+                                      .inputTextStyle
+                                      .copyWith(
+                                        color: InheritedChatTheme.of(context)
+                                            .theme
+                                            .inputTextColor,
+                                      ),
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
-                    Visibility(
-                      visible: _sendButtonVisible,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: SendButton(
-                          onPressed: _handleSendPressed,
-                        ),
-                      ),
+                    ValueListenableBuilder(
+                      valueListenable: lengthTextNotifier,
+                      builder: (_, int lengthText, __) {
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16),
+                              child: Text(
+                                '$lengthText \n/ $LIMIT_CHARACTER',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: lengthText <= LIMIT_CHARACTER
+                                      ? Colors.black
+                                      : Colors.red,
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: _sendButtonVisible,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: SendButton(
+                                  isActive: lengthText > LIMIT_CHARACTER,
+                                  onPressed: lengthText <= LIMIT_CHARACTER
+                                      ? _handleSendPressed
+                                      : () {},
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
