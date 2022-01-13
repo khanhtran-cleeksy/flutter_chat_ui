@@ -139,7 +139,10 @@ class _InputState extends State<Input> {
   @override
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
-
+    if (_textController.text.isNotEmpty) {
+      lengthTextNotifier.value =
+          _textController.text.length;
+    }
     return GestureDetector(
       onTap: () => _inputFocusNode.requestFocus(),
       child: Shortcuts(
@@ -235,7 +238,15 @@ class _InputState extends State<Input> {
                                   maxLines: 5,
                                   minLines: 1,
                                   onChanged: (content) {
-                                    lengthTextNotifier.value = content.length;
+                                    if (_textController.text.isNotEmpty) {
+                                      lengthTextNotifier.value =
+                                          _textController.text.length;
+                                    }
+                                    if (content.isNotEmpty) {
+                                      lengthTextNotifier.value = content.length;
+                                    } else {
+                                      lengthTextNotifier.value = 0;
+                                    }
                                     if (widget.onTextChanged != null) {
                                       widget.onTextChanged!(content);
                                     }
