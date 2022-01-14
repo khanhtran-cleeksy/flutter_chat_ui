@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:intl/intl.dart';
 import '../models/send_button_visibility_mode.dart';
 import 'attachment_button.dart';
 import 'inherited_chat_theme.dart';
@@ -76,6 +77,7 @@ class _InputState extends State<Input> {
   final _textController = TextEditingController();
   ValueNotifier<int> lengthTextNotifier = ValueNotifier(0);
   static const LIMIT_CHARACTER = 2000;
+  static const START_SHOW_LIMIT = 100;
 
   @override
   void initState() {
@@ -140,8 +142,7 @@ class _InputState extends State<Input> {
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
     if (_textController.text.isNotEmpty) {
-      lengthTextNotifier.value =
-          _textController.text.length;
+      lengthTextNotifier.value = _textController.text.length;
     }
     return GestureDetector(
       onTap: () => _inputFocusNode.requestFocus(),
@@ -197,75 +198,76 @@ class _InputState extends State<Input> {
                         borderRadius: InheritedChatTheme.of(context)
                             .theme
                             .inputBorderRadius,
-                        child: ValueListenableBuilder(
-                          valueListenable: lengthTextNotifier,
-                          builder: (_, int length, __) {
-                            return Column(
-                              children: [
-                                ...widget.inputHeader,
-                                TextField(
-                                  readOnly: widget.disableInput!,
-                                  controller: _textController,
-                                  decoration: InputDecoration(
-                                    focusedBorder: length > LIMIT_CHARACTER
-                                        ? OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                            borderSide: const BorderSide(
-                                              width: 1,
-                                              color: Colors.red,
-                                            ),
-                                          )
-                                        : null,
-                                    border: InputBorder.none,
-                                    suffixIcon: widget.inputSuffixIcon,
-                                    contentPadding: const EdgeInsets.all(12.0),
-                                    hintStyle: InheritedChatTheme.of(context)
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              ...widget.inputHeader,
+                              ValueListenableBuilder(
+                                valueListenable: lengthTextNotifier,
+                                builder: (_, int length, __) {
+                                  return TextField(
+                                    readOnly: widget.disableInput!,
+                                    controller: _textController,
+                                    decoration: InputDecoration(
+                                      focusedBorder: length > LIMIT_CHARACTER
+                                          ? OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16.0),
+                                              borderSide: const BorderSide(
+                                                width: 1,
+                                                color: Colors.red,
+                                              ),
+                                            )
+                                          : null,
+                                      border: InputBorder.none,
+                                      suffixIcon: widget.inputSuffixIcon,
+                                      contentPadding:
+                                          const EdgeInsets.all(12.0),
+                                      hintStyle: InheritedChatTheme.of(context)
+                                          .theme
+                                          .inputTextStyle
+                                          .copyWith(
+                                            color:
+                                                InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextColor
+                                                    .withOpacity(0.5),
+                                          ),
+                                      hintText: InheritedL10n.of(context)
+                                          .l10n
+                                          .inputPlaceholder,
+                                    ),
+                                    focusNode: _inputFocusNode,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 5,
+                                    minLines: 1,
+                                    onChanged: (content) {
+                                      if (content.isNotEmpty) {
+                                        lengthTextNotifier.value =
+                                            content.length;
+                                      } else {
+                                        lengthTextNotifier.value = 0;
+                                      }
+                                      if (widget.onTextChanged != null) {
+                                        widget.onTextChanged!(content);
+                                      }
+                                    },
+                                    onTap: widget.onTextFieldTap,
+                                    style: InheritedChatTheme.of(context)
                                         .theme
                                         .inputTextStyle
                                         .copyWith(
                                           color: InheritedChatTheme.of(context)
                                               .theme
-                                              .inputTextColor
-                                              .withOpacity(0.5),
+                                              .inputTextColor,
                                         ),
-                                    hintText: InheritedL10n.of(context)
-                                        .l10n
-                                        .inputPlaceholder,
-                                  ),
-                                  focusNode: _inputFocusNode,
-                                  keyboardType: TextInputType.multiline,
-                                  maxLines: 5,
-                                  minLines: 1,
-                                  onChanged: (content) {
-                                    if (_textController.text.isNotEmpty) {
-                                      lengthTextNotifier.value =
-                                          _textController.text.length;
-                                    }
-                                    if (content.isNotEmpty) {
-                                      lengthTextNotifier.value = content.length;
-                                    } else {
-                                      lengthTextNotifier.value = 0;
-                                    }
-                                    if (widget.onTextChanged != null) {
-                                      widget.onTextChanged!(content);
-                                    }
-                                  },
-                                  onTap: widget.onTextFieldTap,
-                                  style: InheritedChatTheme.of(context)
-                                      .theme
-                                      .inputTextStyle
-                                      .copyWith(
-                                        color: InheritedChatTheme.of(context)
-                                            .theme
-                                            .inputTextColor,
-                                      ),
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                ),
-                              ],
-                            );
-                          },
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -274,15 +276,23 @@ class _InputState extends State<Input> {
                       builder: (_, int lengthText, __) {
                         return Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16),
-                              child: Text(
-                                '$lengthText \n/ $LIMIT_CHARACTER',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: lengthText <= LIMIT_CHARACTER
-                                      ? Colors.black
-                                      : Colors.red,
+                            Visibility(
+                              visible: lengthText >= START_SHOW_LIMIT,
+                              child: Container(
+                                height: 24,
+                                padding: const EdgeInsets.only(left: 14),
+                                alignment: Alignment.centerRight,
+                                child: FittedBox(
+                                  child: Text(
+                                    '${NumberFormat.decimalPattern().format(lengthText)} \n/ ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: lengthText <= LIMIT_CHARACTER
+                                          ? Colors.black
+                                          : Colors.red,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
