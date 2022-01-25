@@ -368,7 +368,11 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget _messageBuilder(Object object, BoxConstraints constraints) {
+  Widget _messageBuilder(
+    Object object,
+    BoxConstraints constraints,
+    BuildContext context,
+  ) {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
@@ -408,6 +412,7 @@ class _ChatState extends State<Chat> {
         onMessageTap: (tappedMessage) {
           if (tappedMessage is types.ImageMessage &&
               widget.disableImageGallery != true) {
+            FocusScope.of(context).unfocus();
             _onImagePressed(tappedMessage);
           }
 
@@ -481,8 +486,8 @@ class _ChatState extends State<Chat> {
                                         BoxConstraints constraints) =>
                                     ChatList(
                                   isLastPage: widget.isLastPage,
-                                  itemBuilder: (item, index) =>
-                                      _messageBuilder(item, constraints),
+                                  itemBuilder: (item, index) => _messageBuilder(
+                                      item, constraints, context),
                                   items: _chatMessages,
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
