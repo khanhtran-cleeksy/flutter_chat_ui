@@ -55,7 +55,6 @@ class ChatListState extends State<ChatList>
   final GlobalKey<SliverAnimatedListState> _listKey =
       GlobalKey<SliverAnimatedListState>();
   late List<Object> _oldData = List.from(widget.items);
-  final _scrollController = ScrollController();
 
   late final AnimationController _controller = AnimationController(vsync: this);
 
@@ -66,31 +65,31 @@ class ChatListState extends State<ChatList>
 
   static const latestMessageIndex = 0;
   static const minScrollExtent = 4;
-  late AutoScrollController scrollController;
+  late AutoScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    scrollController = AutoScrollController(
+    _scrollController = AutoScrollController(
       viewportBoundaryGetter: () =>
           Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
       axis: Axis.vertical,
     );
-    scrollController.addListener(_scrollListener);
+    _scrollController.addListener(_scrollListener);
     didUpdateWidget(widget);
   }
 
   _scrollListener() {
     final scrollState = InheritedScrollMessage.of(context);
 
-    if (scrollController.offset >= minScrollExtent &&
-        !scrollController.position.outOfRange) {
+    if (_scrollController.offset >= minScrollExtent &&
+        !_scrollController.position.outOfRange) {
       scrollState.onScrollLatestMessage(true);
     }
 
-    if (scrollController.offset <=
-            scrollController.position.minScrollExtent + minScrollExtent &&
-        !scrollController.position.outOfRange) {
+    if (_scrollController.offset <=
+            _scrollController.position.minScrollExtent + minScrollExtent &&
+        !_scrollController.position.outOfRange) {
       scrollState.onScrollLatestMessage(false);
     }
   }
@@ -208,7 +207,7 @@ class ChatListState extends State<ChatList>
   }
 
   Future scrollToCounter() async {
-    await scrollController.scrollToIndex(
+    await _scrollController.scrollToIndex(
       latestMessageIndex,
       preferPosition: AutoScrollPosition.begin,
     );
@@ -218,7 +217,7 @@ class ChatListState extends State<ChatList>
     return AutoScrollTag(
       key: ValueKey(index),
       index: index,
-      controller: scrollController,
+      controller: _scrollController,
       child: child,
     );
   }
@@ -256,7 +255,7 @@ class ChatListState extends State<ChatList>
         return false;
       },
       child: CustomScrollView(
-        controller: scrollController,
+        controller: _scrollController,
         physics: widget.scrollPhysics,
         reverse: true,
         slivers: [
