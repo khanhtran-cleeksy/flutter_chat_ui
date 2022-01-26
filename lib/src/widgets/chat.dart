@@ -499,19 +499,48 @@ class _ChatState extends State<Chat> {
                     ),
                     widget.customBottomWidget ??
                         Input(
-                          isAttachmentUploading: widget.isAttachmentUploading,
-                          onAttachmentPressed: widget.onAttachmentPressed,
-                          onSendPressed: widget.onSendPressed,
-                          onTextChanged: widget.onTextChanged,
-                          inputHeader: widget.inputHeader,
-                          inputSuffixIcon: widget.inputSuffixIcon,
-                          disableInput: widget.disableInput,
-                          onTextFieldTap: widget.onTextFieldTap,
-                          sendButtonVisibilityMode:
-                              widget.sendButtonVisibilityMode,
-                          inputContent: widget.inputContent
-                        ),
+                            isAttachmentUploading: widget.isAttachmentUploading,
+                            onAttachmentPressed: () {
+                              if(widget.onAttachmentPressed != null) {
+                                FocusScope.of(context).unfocus();
+                                widget.onAttachmentPressed!();
+                              }
+                            },
+                            onSendPressed: widget.onSendPressed,
+                            onTextChanged: widget.onTextChanged,
+                            inputHeader: widget.inputHeader,
+                            inputSuffixIcon: widget.inputSuffixIcon,
+                            disableInput: widget.disableInput,
+                            onTextFieldTap: widget.onTextFieldTap,
+                            sendButtonVisibilityMode:
+                                widget.sendButtonVisibilityMode,
+                            inputContent: widget.inputContent),
                   ],
+                ),
+              ),
+              Visibility(
+                visible: false,
+                child: Container(
+                  alignment: Alignment.bottomCenter,
+                  margin: const EdgeInsets.only(bottom: 70),
+                  child: Container(
+                    height: 45,
+                    width: 45,
+                    alignment: Alignment.center,
+                    child: RaisedButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                      color: Colors.white,
+                      onPressed: () {},
+                      child: const Icon(
+                        Icons.arrow_downward,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               if (_isImageViewVisible) _imageGalleryBuilder(),
