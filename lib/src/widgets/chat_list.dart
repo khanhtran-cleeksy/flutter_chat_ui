@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
+import 'package:flutter_chat_ui/src/widgets/inherited_scroll_message.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 /// Animated list which handles automatic animations and pagination
 class ChatList extends StatefulWidget {
@@ -43,11 +45,11 @@ class ChatList extends StatefulWidget {
   final ScrollPhysics? scrollPhysics;
 
   @override
-  _ChatListState createState() => _ChatListState();
+  ChatListState createState() => ChatListState();
 }
 
 /// [ChatList] widget state
-class _ChatListState extends State<ChatList>
+class ChatListState extends State<ChatList>
     with SingleTickerProviderStateMixin {
   bool _isNextPageLoading = false;
   final GlobalKey<SliverAnimatedListState> _listKey =
@@ -62,11 +64,35 @@ class _ChatListState extends State<ChatList>
     parent: _controller,
   );
 
+  static const latestMessageIndex = 0;
+  static const minScrollExtent = 4;
+  late AutoScrollController scrollController;
+
   @override
   void initState() {
     super.initState();
-
+    scrollController = AutoScrollController(
+      viewportBoundaryGetter: () =>
+          Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      axis: Axis.vertical,
+    );
+    scrollController.addListener(_scrollListener);
     didUpdateWidget(widget);
+  }
+
+  _scrollListener() {
+    final scrollState = InheritedScrollMessage.of(context);
+
+    if (scrollController.offset >= minScrollExtent &&
+        !scrollController.position.outOfRange) {
+      scrollState.onScrollLatestMessage(true);
+    }
+
+    if (scrollController.offset <=
+            scrollController.position.minScrollExtent + minScrollExtent &&
+        !scrollController.position.outOfRange) {
+      scrollState.onScrollLatestMessage(false);
+    }
   }
 
   @override
@@ -181,6 +207,22 @@ class _ChatListState extends State<ChatList>
     }
   }
 
+  Future scrollToCounter() async {
+    await scrollController.scrollToIndex(
+      latestMessageIndex,
+      preferPosition: AutoScrollPosition.begin,
+    );
+  }
+
+  Widget _buildChatList(int index, Widget child) {
+    return AutoScrollTag(
+      key: ValueKey(index),
+      index: index,
+      controller: scrollController,
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
@@ -214,7 +256,7 @@ class _ChatListState extends State<ChatList>
         return false;
       },
       child: CustomScrollView(
-        controller: _scrollController,
+        controller: scrollController,
         physics: widget.scrollPhysics,
         reverse: true,
         slivers: [
@@ -224,7 +266,7 @@ class _ChatListState extends State<ChatList>
               initialItemCount: widget.items.length,
               key: _listKey,
               itemBuilder: (_, index, animation) =>
-                  _newMessageBuilder(index, animation),
+                  _buildChatList(index, _newMessageBuilder(index, animation)),
             ),
           ),
           SliverPadding(

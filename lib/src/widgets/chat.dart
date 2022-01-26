@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_l10n.dart';
+import 'package:flutter_chat_ui/src/widgets/inherited_scroll_message.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -259,6 +260,10 @@ class _ChatState extends State<Chat> {
   int _imageViewIndex = 0;
   bool _isImageViewVisible = false;
 
+  final GlobalKey<ChatListState> _chatListKey = GlobalKey();
+
+  final ValueNotifier<bool> _isLatestMessage = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -457,6 +462,10 @@ class _ChatState extends State<Chat> {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
+  void onScrollLatestMessage(bool isLatestMessage) {
+    _isLatestMessage.value = isLatestMessage;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InheritedUser(
@@ -465,86 +474,99 @@ class _ChatState extends State<Chat> {
         theme: widget.theme,
         child: InheritedL10n(
           l10n: widget.l10n,
-          child: Stack(
-            children: [
-              Container(
-                color: widget.theme.backgroundColor,
-                child: Column(
-                  children: [
-                    Flexible(
-                      child: widget.messages.isEmpty
-                          ? SizedBox.expand(
-                              child: _emptyStateBuilder(),
-                            )
-                          : GestureDetector(
-                              onTap: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                widget.onBackgroundTap?.call();
-                              },
-                              child: LayoutBuilder(
-                                builder: (BuildContext context,
-                                        BoxConstraints constraints) =>
-                                    ChatList(
-                                  isLastPage: widget.isLastPage,
-                                  itemBuilder: (item, index) => _messageBuilder(
-                                      item, constraints, context),
-                                  items: _chatMessages,
-                                  onEndReached: widget.onEndReached,
-                                  onEndReachedThreshold:
-                                      widget.onEndReachedThreshold,
-                                  scrollPhysics: widget.scrollPhysics,
+          child: InheritedScrollMessage(
+            onScrollLatestMessage: onScrollLatestMessage,
+            child: Stack(
+              children: [
+                Container(
+                  color: widget.theme.backgroundColor,
+                  child: Column(
+                    children: [
+                      Flexible(
+                        child: widget.messages.isEmpty
+                            ? SizedBox.expand(
+                                child: _emptyStateBuilder(),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  widget.onBackgroundTap?.call();
+                                },
+                                child: LayoutBuilder(
+                                  builder: (BuildContext context,
+                                          BoxConstraints constraints) =>
+                                      ChatList(
+                                    key: _chatListKey,
+                                    isLastPage: widget.isLastPage,
+                                    itemBuilder: (item, index) =>
+                                        _messageBuilder(
+                                            item, constraints, context),
+                                    items: _chatMessages,
+                                    onEndReached: widget.onEndReached,
+                                    onEndReachedThreshold:
+                                        widget.onEndReachedThreshold,
+                                    scrollPhysics: widget.scrollPhysics,
+                                  ),
                                 ),
                               ),
-                            ),
-                    ),
-                    widget.customBottomWidget ??
-                        Input(
-                            isAttachmentUploading: widget.isAttachmentUploading,
-                            onAttachmentPressed: () {
-                              if(widget.onAttachmentPressed != null) {
-                                FocusScope.of(context).unfocus();
-                                widget.onAttachmentPressed!();
-                              }
-                            },
-                            onSendPressed: widget.onSendPressed,
-                            onTextChanged: widget.onTextChanged,
-                            inputHeader: widget.inputHeader,
-                            inputSuffixIcon: widget.inputSuffixIcon,
-                            disableInput: widget.disableInput,
-                            onTextFieldTap: widget.onTextFieldTap,
-                            sendButtonVisibilityMode:
-                                widget.sendButtonVisibilityMode,
-                            inputContent: widget.inputContent),
-                  ],
-                ),
-              ),
-              Visibility(
-                visible: false,
-                child: Container(
-                  alignment: Alignment.bottomCenter,
-                  margin: const EdgeInsets.only(bottom: 70),
-                  child: Container(
-                    height: 45,
-                    width: 45,
-                    alignment: Alignment.center,
-                    child: RaisedButton(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50.0),
                       ),
-                      color: Colors.white,
-                      onPressed: () {},
-                      child: const Icon(
-                        Icons.arrow_downward,
-                        color: Colors.blue,
-                        size: 20,
-                      ),
-                    ),
+                      widget.customBottomWidget ??
+                          Input(
+                              isAttachmentUploading:
+                                  widget.isAttachmentUploading,
+                              onAttachmentPressed: () {
+                                if (widget.onAttachmentPressed != null) {
+                                  FocusScope.of(context).unfocus();
+                                  widget.onAttachmentPressed!();
+                                }
+                              },
+                              onSendPressed: widget.onSendPressed,
+                              onTextChanged: widget.onTextChanged,
+                              inputHeader: widget.inputHeader,
+                              inputSuffixIcon: widget.inputSuffixIcon,
+                              disableInput: widget.disableInput,
+                              onTextFieldTap: widget.onTextFieldTap,
+                              sendButtonVisibilityMode:
+                                  widget.sendButtonVisibilityMode,
+                              inputContent: widget.inputContent),
+                    ],
                   ),
                 ),
-              ),
-              if (_isImageViewVisible) _imageGalleryBuilder(),
-            ],
+                ValueListenableBuilder(
+                  valueListenable: _isLatestMessage,
+                  builder: (_, bool isLatest, __) {
+                    return Visibility(
+                      visible: isLatest,
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        margin: const EdgeInsets.only(bottom: 70),
+                        child: Container(
+                          height: 45,
+                          width: 45,
+                          alignment: Alignment.center,
+                          child: RaisedButton(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50.0),
+                            ),
+                            color: Colors.white,
+                            onPressed: () {
+                              _chatListKey.currentState!.scrollToCounter();
+                            },
+                            child: const Icon(
+                              Icons.arrow_downward,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (_isImageViewVisible) _imageGalleryBuilder(),
+              ],
+            ),
           ),
         ),
       ),
