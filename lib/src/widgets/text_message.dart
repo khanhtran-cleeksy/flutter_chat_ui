@@ -158,7 +158,7 @@ class TextMessage extends StatelessWidget {
         horizontal: _enlargeEmojis && hideBackgroundOnEmojiMessages
             ? 0.0
             : _theme.messageInsetsHorizontal,
-        vertical: _theme.messageInsetsVertical,
+        vertical: _enlargeEmojis ? 0 : _theme.messageInsetsVertical,
       ),
       child: _textWidgetBuilder(_user, context, _enlargeEmojis),
     );
