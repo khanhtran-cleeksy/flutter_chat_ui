@@ -77,15 +77,14 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   Widget _buildShimmer() {
-    return SizedBox(
-      height: 150.0,
-      width: 300,
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey,
-        highlightColor: Colors.white,
-        child: const SizedBox(
-          height: 150,
-          width: 300,
+    return Shimmer.fromColors(
+      baseColor: Colors.grey,
+      highlightColor: Colors.white,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: widget.messageWidth.toDouble(),
+          minWidth: 170,
+          maxWidth: 440,
         ),
       ),
     );
@@ -179,7 +178,7 @@ class _ImageMessageState extends State<ImageMessage> {
         child: AspectRatio(
           aspectRatio: _size.aspectRatio > 0 ? _size.aspectRatio : 1,
           child: Image(
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             image: _image!,
           ),
         ),
