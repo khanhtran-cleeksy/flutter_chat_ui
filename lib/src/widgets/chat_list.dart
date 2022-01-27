@@ -211,6 +211,7 @@ class ChatListState extends State<ChatList>
       latestMessageIndex,
       preferPosition: AutoScrollPosition.begin,
     );
+    _scrollController.highlight(1);
   }
 
   Widget _buildChatList(int index, Widget child) {
@@ -219,6 +220,7 @@ class ChatListState extends State<ChatList>
       index: index,
       controller: _scrollController,
       child: child,
+      highlightColor: Colors.blue.withOpacity(0.1),
     );
   }
 
