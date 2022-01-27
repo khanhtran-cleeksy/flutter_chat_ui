@@ -73,6 +73,7 @@ class Chat extends StatefulWidget {
     this.usePreviewData = true,
     required this.user,
     required this.inputContent,
+    required this.onImagePressed,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -247,7 +248,10 @@ class Chat extends StatefulWidget {
   /// See [InheritedUser.user]
   final types.User user;
 
+  // To copy text into InputField
   final String inputContent;
+
+  final Function(bool) onImagePressed;
 
   @override
   _ChatState createState() => _ChatState();
@@ -435,12 +439,14 @@ class _ChatState extends State<Chat> {
   }
 
   void _onCloseGalleryPressed() {
+    widget.onImagePressed(true);
     setState(() {
       _isImageViewVisible = false;
     });
   }
 
   void _onImagePressed(types.ImageMessage message) {
+    widget.onImagePressed(false);
     setState(() {
       _imageViewIndex = _gallery.indexWhere(
         (element) => element.id == message.id && element.uri == message.uri,

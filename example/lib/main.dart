@@ -263,6 +263,9 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
           ],
+          onImagePressed: (bool isActive) {
+            // Action active AppBar at here
+          },
         ),
       ),
     );
