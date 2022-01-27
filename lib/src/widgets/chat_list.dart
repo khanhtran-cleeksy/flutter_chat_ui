@@ -71,6 +71,7 @@ class ChatListState extends State<ChatList>
   void initState() {
     super.initState();
     _scrollController = AutoScrollController(
+      keepScrollOffset: true,
       viewportBoundaryGetter: () =>
           Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
       axis: Axis.vertical,
