@@ -316,6 +316,7 @@ class _ChatState extends State<Chat> {
     return Dismissible(
       key: const Key('photo_view_gallery'),
       direction: DismissDirection.down,
+      resizeDuration: const Duration(microseconds: 100),
       onDismissed: (direction) => _onCloseGalleryPressed(),
       child: Stack(
         children: [
@@ -439,19 +440,19 @@ class _ChatState extends State<Chat> {
   }
 
   void _onCloseGalleryPressed() {
-    widget.onImagePressed(true);
     setState(() {
       _isImageViewVisible = false;
+      widget.onImagePressed(true);
     });
   }
 
   void _onImagePressed(types.ImageMessage message) {
-    widget.onImagePressed(false);
     setState(() {
       _imageViewIndex = _gallery.indexWhere(
         (element) => element.id == message.id && element.uri == message.uri,
       );
       _isImageViewVisible = true;
+      widget.onImagePressed(false);
     });
   }
 
