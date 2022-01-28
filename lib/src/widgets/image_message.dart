@@ -77,14 +77,21 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey,
-      highlightColor: Colors.white,
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: widget.messageWidth.toDouble(),
-          minWidth: 170,
-          maxWidth: 440,
+    return Container(
+      height: widget.messageWidth.toDouble(),
+      constraints: const BoxConstraints(
+        minWidth: 170,
+        maxWidth: 440,
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey,
+        highlightColor: Colors.white,
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: widget.messageWidth.toDouble(),
+            minWidth: 170,
+            maxWidth: 440,
+          ),
         ),
       ),
     );
