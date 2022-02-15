@@ -517,6 +517,12 @@ class _ChatState extends State<Chat> {
                                 ),
                               ),
                       ),
+                      const Divider(
+                        thickness: 1,
+                        indent: 16,
+                        endIndent: 16,
+                        color: Color(0xffE6E9F0),
+                      ),
                       widget.customBottomWidget ??
                           Input(
                               isAttachmentUploading:

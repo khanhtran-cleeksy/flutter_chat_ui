@@ -18,17 +18,20 @@ class SendButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 24,
+      width: 36,
+      height: 36,
       margin: const EdgeInsets.only(left: 16),
-      width: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xff2C56EA),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: IconButton(
         icon: InheritedChatTheme.of(context).theme.sendButtonIcon != null
             ? InheritedChatTheme.of(context).theme.sendButtonIcon!
             : Image.asset(
-                'assets/icon-send.png',
-                color: isActive
-                    ? Colors.grey
-                    : InheritedChatTheme.of(context).theme.inputTextColor,
+                'assets/chat_icon_send.png',
+                color: isActive ? Colors.grey : Colors.white,
                 package: 'flutter_chat_ui',
               ),
         onPressed: onPressed,

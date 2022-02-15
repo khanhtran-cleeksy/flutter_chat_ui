@@ -192,9 +192,7 @@ class _InputState extends State<Input> {
                       ),
                     Expanded(
                       child: Material(
-                        color: InheritedChatTheme.of(context)
-                            .theme
-                            .inputBackgroundColor,
+                        color: Colors.white,
                         borderRadius: InheritedChatTheme.of(context)
                             .theme
                             .inputBorderRadius,
