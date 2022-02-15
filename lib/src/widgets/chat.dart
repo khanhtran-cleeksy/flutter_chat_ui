@@ -521,17 +521,19 @@ class _ChatState extends State<Chat> {
                                 ),
                               ),
                       ),
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: Color(0xffE6E9F0),
-                      ),
                       if (widget.channelTypeWidget != null)
-                        Container(
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Color(0xffE6E9F0),
+                        ),
+                      if (widget.channelTypeWidget != null)
+                        SizedBox(
                           height: 56,
                           child: widget.channelTypeWidget,
                         ),
                       const Divider(
+                        height: 1,
                         thickness: 1,
                         indent: 16,
                         endIndent: 16,
@@ -566,7 +568,8 @@ class _ChatState extends State<Chat> {
                       visible: isLatest,
                       child: Container(
                         alignment: Alignment.bottomCenter,
-                        margin: const EdgeInsets.only(bottom: 70),
+                        margin: EdgeInsets.only(
+                            bottom: (widget.disableInput ?? false) ? 70 : 125),
                         child: Container(
                           height: 45,
                           width: 45,
