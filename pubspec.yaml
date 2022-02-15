@@ -40,15 +40,18 @@ flutter:
     - packages/flutter_chat_ui/assets/icon-error.png
     - packages/flutter_chat_ui/assets/icon-seen.png
     - packages/flutter_chat_ui/assets/icon-send.png
+    - packages/flutter_chat_ui/assets/chat_icon_send.png
     - packages/flutter_chat_ui/assets/2.0x/icon-attachment.png
     - packages/flutter_chat_ui/assets/2.0x/icon-delivered.png
     - packages/flutter_chat_ui/assets/2.0x/icon-document.png
     - packages/flutter_chat_ui/assets/2.0x/icon-error.png
     - packages/flutter_chat_ui/assets/2.0x/icon-seen.png
     - packages/flutter_chat_ui/assets/2.0x/icon-send.png
+    - packages/flutter_chat_ui/assets/2.0x/chat_icon_send.png
     - packages/flutter_chat_ui/assets/3.0x/icon-attachment.png
     - packages/flutter_chat_ui/assets/3.0x/icon-delivered.png
     - packages/flutter_chat_ui/assets/3.0x/icon-document.png
     - packages/flutter_chat_ui/assets/3.0x/icon-error.png
     - packages/flutter_chat_ui/assets/3.0x/icon-seen.png
     - packages/flutter_chat_ui/assets/3.0x/icon-send.png
+    - packages/flutter_chat_ui/assets/3.0x/chat_icon_send.png

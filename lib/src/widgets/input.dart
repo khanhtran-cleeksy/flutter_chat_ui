@@ -183,13 +183,9 @@ class _InputState extends State<Input> {
                   5 + _query.viewInsets.bottom + _query.padding.bottom,
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (widget.onAttachmentPressed != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _leftWidget(),
-                      ),
+                    if (widget.onAttachmentPressed != null) _leftWidget(),
                     Expanded(
                       child: Material(
                         color: Colors.white,
@@ -296,14 +292,11 @@ class _InputState extends State<Input> {
                             ),
                             Visibility(
                               visible: _sendButtonVisible,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: SendButton(
-                                  isActive: lengthText > LIMIT_CHARACTER,
-                                  onPressed: lengthText <= LIMIT_CHARACTER
-                                      ? _handleSendPressed
-                                      : () {},
-                                ),
+                              child: SendButton(
+                                isActive: lengthText > LIMIT_CHARACTER,
+                                onPressed: lengthText <= LIMIT_CHARACTER
+                                    ? _handleSendPressed
+                                    : () {},
                               ),
                             ),
                           ],
