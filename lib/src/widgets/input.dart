@@ -26,7 +26,6 @@ class Input extends StatefulWidget {
     this.onAttachmentPressed,
     this.disableInput = false,
     this.inputSuffixIcon,
-    this.inputHeader = const <Widget>[],
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
@@ -37,8 +36,6 @@ class Input extends StatefulWidget {
   final bool? disableInput;
 
   final Widget? inputSuffixIcon;
-
-  final List<Widget> inputHeader;
 
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
@@ -195,7 +192,6 @@ class _InputState extends State<Input> {
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              ...widget.inputHeader,
                               ValueListenableBuilder(
                                 valueListenable: lengthTextNotifier,
                                 builder: (_, int length, __) {

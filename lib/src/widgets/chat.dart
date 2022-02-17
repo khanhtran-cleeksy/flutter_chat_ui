@@ -539,6 +539,17 @@ class _ChatState extends State<Chat> {
                         endIndent: 16,
                         color: Color(0xffE6E9F0),
                       ),
+                      const SizedBox(height: 8),
+                      ...widget.inputHeader,
+                      const SizedBox(height: 8),
+                      if (widget.inputHeader.isNotEmpty)
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          indent: 16,
+                          endIndent: 16,
+                          color: Color(0xffE6E9F0),
+                        ),
                       widget.customBottomWidget ??
                           Input(
                               isAttachmentUploading:
@@ -551,7 +562,6 @@ class _ChatState extends State<Chat> {
                               },
                               onSendPressed: widget.onSendPressed,
                               onTextChanged: widget.onTextChanged,
-                              inputHeader: widget.inputHeader,
                               inputSuffixIcon: widget.inputSuffixIcon,
                               disableInput: widget.disableInput,
                               onTextFieldTap: widget.onTextFieldTap,
