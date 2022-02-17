@@ -203,16 +203,16 @@ class _InputState extends State<Input> {
                                     readOnly: widget.disableInput!,
                                     controller: _textController,
                                     decoration: InputDecoration(
-                                      focusedBorder: length > LIMIT_CHARACTER
-                                          ? OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(16.0),
-                                              borderSide: const BorderSide(
-                                                width: 1,
-                                                color: Colors.red,
-                                              ),
-                                            )
-                                          : null,
+                                      // focusedBorder: length > LIMIT_CHARACTER
+                                      //     ? OutlineInputBorder(
+                                      //         borderRadius:
+                                      //             BorderRadius.circular(16.0),
+                                      //         borderSide: const BorderSide(
+                                      //           width: 1,
+                                      //           color: Colors.red,
+                                      //         ),
+                                      //       )
+                                      //     : null,
                                       border: InputBorder.none,
                                       suffixIcon: widget.inputSuffixIcon,
                                       contentPadding:
@@ -278,10 +278,11 @@ class _InputState extends State<Input> {
                                 alignment: Alignment.centerRight,
                                 child: FittedBox(
                                   child: Text(
-                                    '${NumberFormat.decimalPattern().format(lengthText)} \n/ ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
+                                    '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
                                     textAlign: TextAlign.right,
                                     style: TextStyle(
                                       fontSize: 10,
+                                      fontWeight: FontWeight.bold,
                                       color: lengthText <= LIMIT_CHARACTER
                                           ? Colors.black
                                           : Colors.red,

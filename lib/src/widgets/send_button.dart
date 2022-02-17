@@ -23,7 +23,7 @@ class SendButton extends StatelessWidget {
       margin: const EdgeInsets.only(left: 16),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xff2C56EA),
+        color: isActive ? const Color(0xffF3F5F9) : const Color(0xff2C56EA),
         borderRadius: BorderRadius.circular(8),
       ),
       child: IconButton(
