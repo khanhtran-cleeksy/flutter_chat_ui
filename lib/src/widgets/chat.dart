@@ -532,19 +532,21 @@ class _ChatState extends State<Chat> {
                           height: 56,
                           child: widget.channelTypeWidget,
                         ),
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        indent: 16,
-                        endIndent: 16,
-                        color: Color(0xffE6E9F0),
-                      ),
                       if (widget.inputHeader.isNotEmpty)
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          indent: 16,
+                          endIndent: 16,
+                          color: Color(0xffE6E9F0),
+                        ),
+                      if (widget.inputHeader.first is! SizedBox)
                         const SizedBox(height: 12),
-                      ...widget.inputHeader,
-                      if (widget.inputHeader.isNotEmpty)
+                      if (widget.inputHeader.first is! SizedBox)
+                        ...widget.inputHeader,
+                      if (widget.inputHeader.first is! SizedBox)
                         const SizedBox(height: 12),
-                      if (widget.inputHeader.isNotEmpty)
+                      if (widget.inputHeader.first is! SizedBox)
                         const Divider(
                           height: 1,
                           thickness: 1,
