@@ -280,8 +280,8 @@ class _InputState extends State<Input> {
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                       color: lengthText <= LIMIT_CHARACTER
-                                          ? Colors.black
-                                          : Colors.red,
+                                          ? const Color(0xffA1A9BB)
+                                          : const Color(0xffCE2B10),
                                     ),
                                   ),
                                 ),

@@ -539,9 +539,11 @@ class _ChatState extends State<Chat> {
                         endIndent: 16,
                         color: Color(0xffE6E9F0),
                       ),
-                      const SizedBox(height: 8),
+                      if (widget.inputHeader.isNotEmpty)
+                        const SizedBox(height: 12),
                       ...widget.inputHeader,
-                      const SizedBox(height: 8),
+                      if (widget.inputHeader.isNotEmpty)
+                        const SizedBox(height: 12),
                       if (widget.inputHeader.isNotEmpty)
                         const Divider(
                           height: 1,
