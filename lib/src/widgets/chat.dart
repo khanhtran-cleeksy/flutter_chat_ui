@@ -57,7 +57,7 @@ class Chat extends StatefulWidget {
     this.onMessageStatusLongPress,
     this.onMessageTap,
     this.disableInput = false,
-    this.inputSuffixIcon,
+    this.isEmojiVisible = false,
     this.onMessageStatusTap,
     this.onPreviewDataFetched,
     required this.onSendPressed,
@@ -206,7 +206,7 @@ class Chat extends StatefulWidget {
 
   final bool? disableInput;
 
-  final Widget? inputSuffixIcon;
+  final bool isEmojiVisible;
 
   /// See [Input.onTextFieldTap]
   final void Function()? onTextFieldTap;
@@ -271,12 +271,19 @@ class _ChatState extends State<Chat> {
   final GlobalKey<ChatListState> _chatListKey = GlobalKey();
 
   final ValueNotifier<bool> _isLatestMessage = ValueNotifier(false);
+  double bottomPadding = 0.0;
 
   @override
   void initState() {
     super.initState();
 
     didUpdateWidget(widget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    bottomPadding = MediaQuery.of(context).padding.bottom;
+    super.didChangeDependencies();
   }
 
   @override
@@ -477,6 +484,11 @@ class _ChatState extends State<Chat> {
     _isLatestMessage.value = isLatestMessage;
   }
 
+  bool get isValidInputHeader {
+    return widget.inputHeader.isNotEmpty &&
+        widget.inputHeader.first is! SizedBox;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InheritedUser(
@@ -540,13 +552,10 @@ class _ChatState extends State<Chat> {
                           endIndent: 16,
                           color: Color(0xffE6E9F0),
                         ),
-                      if (widget.inputHeader.first is! SizedBox)
-                        const SizedBox(height: 12),
-                      if (widget.inputHeader.first is! SizedBox)
-                        ...widget.inputHeader,
-                      if (widget.inputHeader.first is! SizedBox)
-                        const SizedBox(height: 12),
-                      if (widget.inputHeader.first is! SizedBox)
+                      if (isValidInputHeader) const SizedBox(height: 12),
+                      if (isValidInputHeader) ...widget.inputHeader,
+                      if (isValidInputHeader) const SizedBox(height: 12),
+                      if (isValidInputHeader)
                         const Divider(
                           height: 1,
                           thickness: 1,
@@ -566,7 +575,7 @@ class _ChatState extends State<Chat> {
                               },
                               onSendPressed: widget.onSendPressed,
                               onTextChanged: widget.onTextChanged,
-                              inputSuffixIcon: widget.inputSuffixIcon,
+                              isEmojiVisible: widget.isEmojiVisible,
                               disableInput: widget.disableInput,
                               onTextFieldTap: widget.onTextFieldTap,
                               sendButtonVisibilityMode:
@@ -583,7 +592,8 @@ class _ChatState extends State<Chat> {
                       child: Container(
                         alignment: Alignment.bottomCenter,
                         margin: EdgeInsets.only(
-                            bottom: (widget.disableInput ?? false) ? 70 : 125),
+                          bottom: (widget.disableInput ?? false) ? 70 : 125,
+                        ),
                         child: Container(
                           height: 45,
                           width: 45,

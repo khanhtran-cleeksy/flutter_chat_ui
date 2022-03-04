@@ -1,3 +1,4 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -25,7 +26,7 @@ class Input extends StatefulWidget {
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     this.disableInput = false,
-    this.inputSuffixIcon,
+    this.isEmojiVisible = false,
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
@@ -35,7 +36,7 @@ class Input extends StatefulWidget {
 
   final bool? disableInput;
 
-  final Widget? inputSuffixIcon;
+  final bool isEmojiVisible;
 
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
@@ -73,6 +74,7 @@ class _InputState extends State<Input> {
   bool _sendButtonVisible = false;
   final _textController = TextEditingController();
   ValueNotifier<int> lengthTextNotifier = ValueNotifier(0);
+  ValueNotifier<bool> isEmojiVisibleNotifier = ValueNotifier(true);
   static const LIMIT_CHARACTER = 2000;
   static const START_SHOW_LIMIT = 100;
 
@@ -101,6 +103,7 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
+    FocusManager.instance.primaryFocus?.unfocus();
     lengthTextNotifier.value = 0;
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
@@ -112,7 +115,7 @@ class _InputState extends State<Input> {
 
   void _handleTextControllerChange() {
     setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
+      _sendButtonVisible = _textController.text.trim().isNotEmpty;
     });
   }
 
@@ -172,136 +175,214 @@ class _InputState extends State<Input> {
             autofocus: true,
             child: Padding(
               padding: InheritedChatTheme.of(context).theme.inputPadding,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  20 + _query.padding.left,
-                  5,
-                  20 + _query.padding.right,
-                  5 + _query.viewInsets.bottom + _query.padding.bottom,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (widget.onAttachmentPressed != null) _leftWidget(),
-                    Expanded(
-                      child: Material(
-                        color: Colors.white,
-                        borderRadius: InheritedChatTheme.of(context)
-                            .theme
-                            .inputBorderRadius,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ValueListenableBuilder(
-                                valueListenable: lengthTextNotifier,
-                                builder: (_, int length, __) {
-                                  return TextField(
-                                    readOnly: widget.disableInput!,
-                                    controller: _textController,
-                                    decoration: InputDecoration(
-                                      // focusedBorder: length > LIMIT_CHARACTER
-                                      //     ? OutlineInputBorder(
-                                      //         borderRadius:
-                                      //             BorderRadius.circular(16.0),
-                                      //         borderSide: const BorderSide(
-                                      //           width: 1,
-                                      //           color: Colors.red,
-                                      //         ),
-                                      //       )
-                                      //     : null,
-                                      border: InputBorder.none,
-                                      suffixIcon: widget.inputSuffixIcon,
-                                      contentPadding:
-                                          const EdgeInsets.all(12.0),
-                                      hintStyle: InheritedChatTheme.of(context)
-                                          .theme
-                                          .inputTextStyle
-                                          .copyWith(
-                                            color:
-                                                InheritedChatTheme.of(context)
-                                                    .theme
-                                                    .inputTextColor
-                                                    .withOpacity(0.5),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      20 + _query.padding.left,
+                      5,
+                      20 + _query.padding.right,
+                      5 + _query.viewInsets.bottom + _query.padding.bottom,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (widget.onAttachmentPressed != null) _leftWidget(),
+                        Expanded(
+                          child: Material(
+                            color: Colors.white,
+                            borderRadius: InheritedChatTheme.of(context)
+                                .theme
+                                .inputBorderRadius,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  ValueListenableBuilder(
+                                    valueListenable: lengthTextNotifier,
+                                    builder: (_, int length, __) {
+                                      return TextField(
+                                        readOnly: widget.disableInput!,
+                                        controller: _textController,
+                                        decoration: InputDecoration(
+                                          // focusedBorder: length > LIMIT_CHARACTER
+                                          //     ? OutlineInputBorder(
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(16.0),
+                                          //         borderSide: const BorderSide(
+                                          //           width: 1,
+                                          //           color: Colors.red,
+                                          //         ),
+                                          //       )
+                                          //     : null,
+                                          border: InputBorder.none,
+                                          suffixIcon: Visibility(
+                                            visible: widget.isEmojiVisible,
+                                            child: ValueListenableBuilder(
+                                              valueListenable:
+                                                  isEmojiVisibleNotifier,
+                                              builder: (BuildContext context,
+                                                  bool isEmojiVisible, __) {
+                                                return IconButton(
+                                                  icon: Icon(
+                                                    Icons.emoji_emotions,
+                                                    color: isEmojiVisible
+                                                        ? Colors.grey
+                                                        : const Color(
+                                                                0xff2C56EA)
+                                                            .withOpacity(0.75),
+                                                  ),
+                                                  onPressed: () {
+                                                    isEmojiVisibleNotifier
+                                                            .value =
+                                                        !isEmojiVisibleNotifier
+                                                            .value;
+                                                  },
+                                                );
+                                              },
+                                            ),
                                           ),
-                                      hintText: InheritedL10n.of(context)
-                                          .l10n
-                                          .inputPlaceholder,
-                                    ),
-                                    focusNode: _inputFocusNode,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: 5,
-                                    minLines: 1,
-                                    onChanged: (content) {
-                                      if (content.isNotEmpty) {
-                                        lengthTextNotifier.value =
-                                            content.length;
-                                      } else {
-                                        lengthTextNotifier.value = 0;
-                                      }
-                                      if (widget.onTextChanged != null) {
-                                        widget.onTextChanged!(content);
-                                      }
-                                    },
-                                    onTap: widget.onTextFieldTap,
-                                    style: InheritedChatTheme.of(context)
-                                        .theme
-                                        .inputTextStyle
-                                        .copyWith(
-                                          color: InheritedChatTheme.of(context)
-                                              .theme
-                                              .inputTextColor,
+                                          contentPadding:
+                                              const EdgeInsets.all(12.0),
+                                          hintStyle:
+                                              InheritedChatTheme.of(context)
+                                                  .theme
+                                                  .inputTextStyle
+                                                  .copyWith(
+                                                    color:
+                                                        InheritedChatTheme.of(
+                                                                context)
+                                                            .theme
+                                                            .inputTextColor
+                                                            .withOpacity(0.5),
+                                                  ),
+                                          hintText: InheritedL10n.of(context)
+                                              .l10n
+                                              .inputPlaceholder,
                                         ),
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                  );
-                                },
+                                        focusNode: _inputFocusNode,
+                                        keyboardType: TextInputType.multiline,
+                                        maxLines: 5,
+                                        minLines: 1,
+                                        onChanged: (content) {
+                                          if (content.isNotEmpty) {
+                                            lengthTextNotifier.value =
+                                                content.length;
+                                          } else {
+                                            lengthTextNotifier.value = 0;
+                                          }
+                                          if (widget.onTextChanged != null) {
+                                            widget.onTextChanged!(content);
+                                          }
+                                        },
+                                        onTap: widget.onTextFieldTap,
+                                        style: InheritedChatTheme.of(context)
+                                            .theme
+                                            .inputTextStyle
+                                            .copyWith(
+                                              color:
+                                                  InheritedChatTheme.of(context)
+                                                      .theme
+                                                      .inputTextColor,
+                                            ),
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: lengthTextNotifier,
-                      builder: (_, int lengthText, __) {
-                        return Column(
-                          children: [
-                            Visibility(
-                              visible: lengthText >= START_SHOW_LIMIT,
-                              child: Container(
-                                height: 24,
-                                padding: const EdgeInsets.only(left: 14),
-                                alignment: Alignment.centerRight,
-                                child: FittedBox(
-                                  child: Text(
-                                    '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: lengthText <= LIMIT_CHARACTER
-                                          ? const Color(0xffA1A9BB)
-                                          : const Color(0xffCE2B10),
+                        ValueListenableBuilder(
+                          valueListenable: lengthTextNotifier,
+                          builder: (_, int lengthText, __) {
+                            return Column(
+                              children: [
+                                Visibility(
+                                  visible: lengthText >= START_SHOW_LIMIT,
+                                  child: Container(
+                                    height: 24,
+                                    padding: const EdgeInsets.only(left: 14),
+                                    alignment: Alignment.centerRight,
+                                    child: FittedBox(
+                                      child: Text(
+                                        '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: lengthText <= LIMIT_CHARACTER
+                                              ? const Color(0xffA1A9BB)
+                                              : const Color(0xffCE2B10),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            Visibility(
-                              visible: _sendButtonVisible,
-                              child: SendButton(
-                                isActive: lengthText > LIMIT_CHARACTER,
-                                onPressed: lengthText <= LIMIT_CHARACTER
-                                    ? _handleSendPressed
-                                    : () {},
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                                Visibility(
+                                  visible: _sendButtonVisible,
+                                  child: SendButton(
+                                    isActive: lengthText > LIMIT_CHARACTER,
+                                    onPressed: lengthText <= LIMIT_CHARACTER
+                                        ? _handleSendPressed
+                                        : () {},
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: isEmojiVisibleNotifier,
+                    builder: (BuildContext context, bool isEmojiVisible, __) {
+                      return Offstage(
+                        offstage: isEmojiVisible,
+                        child: SizedBox(
+                          height: 250,
+                          child: EmojiPicker(
+                            onEmojiSelected: (category, emoji) {
+                              _textController.text =
+                                  _textController.text + emoji.emoji;
+                              _textController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset: _textController.text.length));
+                            },
+                            onBackspacePressed: () {
+                              _inputFocusNode.unfocus();
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              isEmojiVisibleNotifier.value = true;
+                            },
+                            config: const Config(
+                              columns: 7,
+                              verticalSpacing: 0,
+                              horizontalSpacing: 0,
+                              initCategory: Category.SMILEYS,
+                              bgColor: Color(0xFFFFFFFF),
+                              indicatorColor: Color(0xff2C56EA),
+                              iconColor: Colors.grey,
+                              iconColorSelected: Color(0xff2C56EA),
+                              progressIndicatorColor: Color(0xff2C56EA),
+                              showRecentsTab: true,
+                              recentsLimit: 28,
+                              noRecentsText: "No Recents",
+                              noRecentsStyle: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black26,
+                              ),
+                              tabIndicatorAnimDuration: kTabScrollDuration,
+                              categoryIcons: CategoryIcons(),
+                              buttonMode: ButtonMode.MATERIAL,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
