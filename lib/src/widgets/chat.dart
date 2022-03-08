@@ -591,9 +591,7 @@ class _ChatState extends State<Chat> {
                       visible: isLatest,
                       child: Container(
                         alignment: Alignment.bottomCenter,
-                        margin: EdgeInsets.only(
-                          bottom: (widget.disableInput ?? false) ? 70 : 125,
-                        ),
+                        margin: const EdgeInsets.only(bottom: 120),
                         child: Container(
                           height: 45,
                           width: 45,
@@ -605,6 +603,14 @@ class _ChatState extends State<Chat> {
                             ),
                             color: Colors.white,
                             onPressed: () {
+                              Scrollable.recommendDeferredLoadingForContext(
+                                  context);
+                              Scrollable.ensureVisible(
+                                context,
+                                curve: Curves.fastOutSlowIn,
+                                alignmentPolicy: ScrollPositionAlignmentPolicy
+                                    .keepVisibleAtEnd,
+                              );
                               _chatListKey.currentState!.scrollToCounter();
                             },
                             child: const Icon(
