@@ -103,7 +103,6 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
-    FocusManager.instance.primaryFocus?.unfocus();
     lengthTextNotifier.value = 0;
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {

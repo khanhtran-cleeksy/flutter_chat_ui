@@ -591,7 +591,7 @@ class _ChatState extends State<Chat> {
                       visible: isLatest,
                       child: Container(
                         alignment: Alignment.bottomCenter,
-                        margin: const EdgeInsets.only(bottom: 120),
+                        margin: const EdgeInsets.only(bottom: 125),
                         child: Container(
                           height: 45,
                           width: 45,
@@ -603,8 +603,6 @@ class _ChatState extends State<Chat> {
                             ),
                             color: Colors.white,
                             onPressed: () {
-                              Scrollable.recommendDeferredLoadingForContext(
-                                  context);
                               Scrollable.ensureVisible(
                                 context,
                                 curve: Curves.fastOutSlowIn,

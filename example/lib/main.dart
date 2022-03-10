@@ -226,7 +226,7 @@ class _ChatPageState extends State<ChatPage> {
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
           onTextFieldTap: () {},
-          isEmojiVisible: true,
+          isEmojiVisible: false,
           imageGalleryBackgroundColor: Colors.white,
           user: _user,
           showUserAvatars: true,
