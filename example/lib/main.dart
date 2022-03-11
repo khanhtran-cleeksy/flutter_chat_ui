@@ -230,6 +230,7 @@ class _ChatPageState extends State<ChatPage> {
           imageGalleryBackgroundColor: Colors.white,
           user: _user,
           showUserAvatars: true,
+          showUserNames: true,
           buildMessageAvatar: (message) {
             final hasImage = message.author.imageUrl != null;
             return Container(

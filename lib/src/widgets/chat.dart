@@ -75,6 +75,8 @@ class Chat extends StatefulWidget {
     required this.inputContent,
     required this.onImagePressed,
     this.channelTypeWidget,
+    this.senderName,
+    this.senderAvatar,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -256,6 +258,12 @@ class Chat extends StatefulWidget {
 
   /// Selection channel to send message
   final Widget? channelTypeWidget;
+
+  /// show sender's name
+  final String? senderName;
+
+  /// show sender's avatar
+  final String? senderAvatar;
 
   @override
   _ChatState createState() => _ChatState();
@@ -446,6 +454,8 @@ class _ChatState extends State<Chat> {
         showStatus: map['showStatus'] == true,
         showUserAvatars: widget.showUserAvatars,
         usePreviewData: widget.usePreviewData,
+        senderName: widget.senderName,
+        senderAvatar: widget.senderAvatar,
       );
     }
   }

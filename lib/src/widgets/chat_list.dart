@@ -151,7 +151,7 @@ class ChatListState extends State<ChatList>
   Widget _newMessageBuilder(int index, Animation<double> animation) {
     try {
       final item = _oldData[index];
-
+      print('item"${item}');
       return SizeTransition(
         axisAlignment: -1,
         sizeFactor: animation.drive(CurveTween(curve: Curves.easeOutQuad)),

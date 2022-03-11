@@ -37,6 +37,8 @@ class Message extends StatelessWidget {
     required this.showUserAvatars,
     this.textMessageBuilder,
     required this.usePreviewData,
+    this.senderName,
+    this.senderAvatar,
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -123,6 +125,12 @@ class Message extends StatelessWidget {
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
 
+  /// show sender's name
+  final String? senderName;
+
+  /// show sender's avatar
+  final String? senderAvatar;
+
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
       message.author,
@@ -173,18 +181,58 @@ class Message extends StatelessWidget {
           )
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
-            : Container(
-                decoration: BoxDecoration(
-                  borderRadius: borderRadius,
-                  color: !currentUserIsAuthor ||
-                          message.type == types.MessageType.image
-                      ? InheritedChatTheme.of(context).theme.secondaryColor
-                      : InheritedChatTheme.of(context).theme.primaryColor,
-                ),
-                child: ClipRRect(
-                  borderRadius: borderRadius,
-                  child: _messageBuilder(),
-                ),
+            : Column(
+                children: [
+                  if (currentUserIsAuthor)
+                    Visibility(
+                      visible: (senderName ?? '').isNotEmpty &&
+                          (senderAvatar ?? '').isNotEmpty,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: SizedBox(
+                          height: 25,
+                          width: 150,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  senderName ?? '',
+                                  textAlign: TextAlign.right,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xff666E83),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundImage:
+                                    NetworkImage(senderAvatar ?? ''),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: borderRadius,
+                      color: !currentUserIsAuthor ||
+                              message.type == types.MessageType.image
+                          ? InheritedChatTheme.of(context).theme.secondaryColor
+                          : InheritedChatTheme.of(context).theme.primaryColor,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: borderRadius,
+                      child: _messageBuilder(),
+                    ),
+                  ),
+                ],
               );
   }
 
