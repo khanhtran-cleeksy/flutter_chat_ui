@@ -230,7 +230,10 @@ class _ChatPageState extends State<ChatPage> {
           imageGalleryBackgroundColor: Colors.white,
           user: _user,
           showUserAvatars: true,
-          showUserNames: true,
+          showUserNames: false,
+          senderName: 'Thuyen Pham',
+          senderAvatar:
+              'https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/38/380c4819743c828d9541e00d6844bfd31d585b24.jpg',
           buildMessageAvatar: (message) {
             final hasImage = message.author.imageUrl != null;
             return Container(

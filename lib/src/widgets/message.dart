@@ -182,6 +182,7 @@ class Message extends StatelessWidget {
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   if (currentUserIsAuthor)
                     Visibility(
