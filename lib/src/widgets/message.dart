@@ -37,8 +37,7 @@ class Message extends StatelessWidget {
     required this.showUserAvatars,
     this.textMessageBuilder,
     required this.usePreviewData,
-    this.senderName,
-    this.senderAvatar,
+    this.senderBuilder,
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -125,11 +124,7 @@ class Message extends StatelessWidget {
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
 
-  /// show sender's name
-  final String? senderName;
-
-  /// show sender's avatar
-  final String? senderAvatar;
+  final Widget? senderBuilder;
 
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
@@ -185,40 +180,7 @@ class Message extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   if (currentUserIsAuthor)
-                    Visibility(
-                      visible: (senderName ?? '').isNotEmpty &&
-                          (senderAvatar ?? '').isNotEmpty,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          height: 25,
-                          width: 150,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  senderName ?? '',
-                                  textAlign: TextAlign.right,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xff666E83),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundImage:
-                                    NetworkImage(senderAvatar ?? ''),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    senderBuilder ?? const SizedBox.shrink(),
                   const SizedBox(height: 6),
                   Container(
                     decoration: BoxDecoration(
@@ -313,7 +275,7 @@ class Message extends StatelessWidget {
                 ),
               );
       default:
-        return const SizedBox();
+        return const SizedBox.shrink();
     }
   }
 
