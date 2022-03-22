@@ -221,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
         bottom: false,
         child: Chat(
           messages: _messages,
-          onAttachmentPressed: _handleAttachmentPressed,
+          // onAttachmentPressed: _handleAttachmentPressed,
           onMessageTap: _handleMessageTap,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
@@ -230,7 +230,8 @@ class _ChatPageState extends State<ChatPage> {
           imageGalleryBackgroundColor: Colors.white,
           user: _user,
           showUserAvatars: true,
-          showUserNames: false,
+          showUserNames: true,
+          senderBuilder: _buildSenderInfo(),
           buildMessageAvatar: (message) {
             final hasImage = message.author.imageUrl != null;
             return Container(
@@ -264,6 +265,39 @@ class _ChatPageState extends State<ChatPage> {
           onImagePressed: (bool isActive) {
             // Action active AppBar at here
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSenderInfo() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: SizedBox(
+        height: 25,
+        width: 150,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                'senderName',
+                textAlign: TextAlign.right,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xff666E83),
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: NetworkImage(
+                  'https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/87/87fbfb6c5df3f7d0afe66bcd97e2c20ec459fcc0.jpg'),
+            ),
+          ],
         ),
       ),
     );

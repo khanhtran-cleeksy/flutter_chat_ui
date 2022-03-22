@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/src/widgets/inherited_l10n.dart';
-import 'package:flutter_chat_ui/src/widgets/inherited_scroll_message.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -16,7 +14,10 @@ import '../models/preview_image.dart';
 import '../models/send_button_visibility_mode.dart';
 import '../util.dart';
 import 'chat_list.dart';
+import 'inherited_action_sheet.dart';
 import 'inherited_chat_theme.dart';
+import 'inherited_l10n.dart';
+import 'inherited_scroll_message.dart';
 import 'inherited_user.dart';
 import 'input.dart';
 import 'message.dart';
@@ -31,6 +32,7 @@ class Chat extends StatefulWidget {
     this.customBottomWidget,
     this.buildMessageAvatar,
     this.inputHeader = const <Widget>[],
+    this.inputFooter = const <Widget>[],
     this.customDateHeaderText,
     this.customMessageBuilder,
     this.dateFormat,
@@ -48,7 +50,7 @@ class Chat extends StatefulWidget {
     this.isLastPage,
     this.l10n = const ChatL10nEn(),
     required this.messages,
-    this.onAttachmentPressed,
+    this.prefixInput = const [],
     this.onAvatarTap,
     this.onBackgroundTap,
     this.onEndReached,
@@ -78,6 +80,8 @@ class Chat extends StatefulWidget {
     this.senderBuilder,
   }) : super(key: key);
 
+  final List<Widget> prefixInput;
+
   /// See [Message.bubbleBuilder]
   final Widget Function(
     Widget child, {
@@ -92,6 +96,8 @@ class Chat extends StatefulWidget {
   final Widget Function(types.Message)? buildMessageAvatar;
 
   final List<Widget> inputHeader;
+
+  final List<Widget> inputFooter;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -157,7 +163,7 @@ class Chat extends StatefulWidget {
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
 
-  /// See [ChatList.isLastPage]
+  /// See [ChatList.isLastPage]f
   final bool? isLastPage;
 
   /// Localized copy. Extend [ChatL10n] class to create your own copy or use
@@ -167,9 +173,6 @@ class Chat extends StatefulWidget {
 
   /// List of [types.Message] to render in the chat widget
   final List<types.Message> messages;
-
-  /// See [Input.onAttachmentPressed]
-  final void Function()? onAttachmentPressed;
 
   /// See [Message.onAvatarTap]
   final void Function(types.User)? onAvatarTap;
@@ -266,7 +269,7 @@ class Chat extends StatefulWidget {
 }
 
 /// [Chat] widget state
-class _ChatState extends State<Chat> {
+class _ChatState extends State<Chat> with TickerProviderStateMixin {
   List<Object> _chatMessages = [];
   List<PreviewImage> _gallery = [];
   int _imageViewIndex = 0;
@@ -275,6 +278,7 @@ class _ChatState extends State<Chat> {
   final GlobalKey<ChatListState> _chatListKey = GlobalKey();
 
   final ValueNotifier<bool> _isLatestMessage = ValueNotifier(false);
+  final ValueNotifier<bool> isTapShowFooter = ValueNotifier(false);
   double bottomPadding = 0.0;
 
   @override
@@ -282,6 +286,13 @@ class _ChatState extends State<Chat> {
     super.initState();
 
     didUpdateWidget(widget);
+  }
+
+  @override
+  void dispose() {
+    _isLatestMessage.dispose();
+    isTapShowFooter.dispose();
+    super.dispose();
   }
 
   @override
@@ -489,9 +500,18 @@ class _ChatState extends State<Chat> {
     _isLatestMessage.value = isLatestMessage;
   }
 
+  void onTapMultipleSelection() {
+    isTapShowFooter.value = !isTapShowFooter.value;
+  }
+
   bool get isValidInputHeader {
     return widget.inputHeader.isNotEmpty &&
         widget.inputHeader.first is! SizedBox;
+  }
+
+  bool get isValidInputFooter {
+    return widget.inputFooter.isNotEmpty &&
+        widget.inputFooter.first is! SizedBox;
   }
 
   @override
@@ -538,28 +558,44 @@ class _ChatState extends State<Chat> {
                                 ),
                               ),
                       ),
-                      if (widget.channelTypeWidget != null)
-                        const Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: Color(0xffE6E9F0),
-                        ),
-                      if (widget.channelTypeWidget != null)
-                        SizedBox(
-                          height: 56,
-                          child: widget.channelTypeWidget,
-                        ),
-                      if (widget.inputHeader.isNotEmpty)
-                        const Divider(
-                          height: 1,
-                          thickness: 1,
-                          indent: 16,
-                          endIndent: 16,
-                          color: Color(0xffE6E9F0),
-                        ),
-                      if (isValidInputHeader) const SizedBox(height: 12),
+                      ValueListenableBuilder(
+                        valueListenable: _isLatestMessage,
+                        builder: (_, bool isLatest, __) {
+                          return Visibility(
+                            visible: isLatest,
+                            child: Container(
+                              height: 45,
+                              width: 45,
+                              alignment: Alignment.center,
+                              child: RaisedButton(
+                                clipBehavior: Clip.hardEdge,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50.0),
+                                ),
+                                color: Colors.white,
+                                onPressed: () {
+                                  Scrollable.ensureVisible(
+                                    context,
+                                    curve: Curves.fastOutSlowIn,
+                                    alignmentPolicy:
+                                        ScrollPositionAlignmentPolicy
+                                            .keepVisibleAtEnd,
+                                  );
+                                  _chatListKey.currentState!.scrollToCounter();
+                                },
+                                child: const Icon(
+                                  Icons.arrow_downward,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       if (isValidInputHeader) ...widget.inputHeader,
-                      if (isValidInputHeader) const SizedBox(height: 12),
                       if (isValidInputHeader)
                         const Divider(
                           height: 1,
@@ -570,62 +606,30 @@ class _ChatState extends State<Chat> {
                         ),
                       widget.customBottomWidget ??
                           Input(
-                              isAttachmentUploading:
-                                  widget.isAttachmentUploading,
-                              onAttachmentPressed: () {
-                                if (widget.onAttachmentPressed != null) {
-                                  FocusScope.of(context).unfocus();
-                                  widget.onAttachmentPressed!();
-                                }
-                              },
-                              onSendPressed: widget.onSendPressed,
-                              onTextChanged: widget.onTextChanged,
-                              isEmojiVisible: widget.isEmojiVisible,
-                              disableInput: widget.disableInput,
-                              onTextFieldTap: widget.onTextFieldTap,
-                              sendButtonVisibilityMode:
-                                  widget.sendButtonVisibilityMode,
-                              inputContent: widget.inputContent),
+                            isAttachmentUploading: widget.isAttachmentUploading,
+                            prefixInput: widget.prefixInput,
+                            onSendPressed: widget.onSendPressed,
+                            onTextChanged: widget.onTextChanged,
+                            isEmojiVisible: widget.isEmojiVisible,
+                            disableInput: widget.disableInput,
+                            onTextFieldTap: widget.onTextFieldTap,
+                            sendButtonVisibilityMode:
+                                widget.sendButtonVisibilityMode,
+                            inputContent: widget.inputContent,
+                            hasFocusCallBack: (bool hasFocus) {
+                              WidgetsBinding.instance
+                                  ?.addPostFrameCallback((timeStamp) {
+                                isTapShowFooter.value = !hasFocus;
+                              });
+                            },
+                            onTapAttachment: () {
+                              FocusScope.of(context).unfocus();
+                              isTapShowFooter.value = !isTapShowFooter.value;
+                            },
+                          ),
+                      _buildInputFooter(),
                     ],
                   ),
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _isLatestMessage,
-                  builder: (_, bool isLatest, __) {
-                    return Visibility(
-                      visible: isLatest,
-                      child: Container(
-                        alignment: Alignment.bottomCenter,
-                        margin: const EdgeInsets.only(bottom: 125),
-                        child: Container(
-                          height: 45,
-                          width: 45,
-                          alignment: Alignment.center,
-                          child: RaisedButton(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50.0),
-                            ),
-                            color: Colors.white,
-                            onPressed: () {
-                              Scrollable.ensureVisible(
-                                context,
-                                curve: Curves.fastOutSlowIn,
-                                alignmentPolicy: ScrollPositionAlignmentPolicy
-                                    .keepVisibleAtEnd,
-                              );
-                              _chatListKey.currentState!.scrollToCounter();
-                            },
-                            child: const Icon(
-                              Icons.arrow_downward,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
                 ),
                 if (_isImageViewVisible) _imageGalleryBuilder(),
               ],
@@ -633,6 +637,23 @@ class _ChatState extends State<Chat> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInputFooter() {
+    return ValueListenableBuilder(
+      valueListenable: isTapShowFooter,
+      builder: (context, bool isShowFooter, ___) {
+        return Visibility(
+          visible: isShowFooter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...widget.inputFooter,
+            ],
+          ),
+        );
+      },
     );
   }
 }

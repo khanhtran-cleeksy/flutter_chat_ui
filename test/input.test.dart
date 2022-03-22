@@ -13,13 +13,13 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              onImagePressed: (bool) {},
+              inputContent: '',
               messages: const [],
               onSendPressed: (types.PartialText message) {},
               sendButtonVisibilityMode: SendButtonVisibilityMode.always,
               user:
                   const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
-              inputContent: '',
-              onImagePressed: (bool) {},
             ),
           ),
         ),
@@ -39,12 +39,12 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              onImagePressed: (bool) {},
+              inputContent: '',
               messages: const [],
               onSendPressed: (types.PartialText message) {},
               user:
                   const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
-              inputContent: '',
-              onImagePressed: (bool) {},
             ),
           ),
         ),
@@ -64,12 +64,12 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              onImagePressed: (bool) {},
+              inputContent: '',
               messages: const [],
               onSendPressed: (types.PartialText message) {},
               user:
                   const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
-              inputContent: '',
-              onImagePressed: (bool) {},
             ),
           ),
         ),
@@ -95,12 +95,12 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              onImagePressed: (bool) {},
               inputContent: '',
               messages: const [],
               onSendPressed: (types.PartialText message) => isCalled = true,
               user:
                   const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
-              onImagePressed: (bool) {},
             ),
           ),
         ),
@@ -136,13 +136,13 @@ void main() {
         MaterialApp(
           home: Material(
             child: Chat(
+              onImagePressed: (bool) {},
               inputContent: '',
               messages: const [],
-              onAttachmentPressed: () => isCalled = true,
+              // onAttachmentPressed: () => isCalled = true,
               onSendPressed: (types.PartialText message) => {},
               user:
                   const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
-              onImagePressed: (bool) {},
             ),
           ),
         ),

@@ -2,8 +2,8 @@ import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'inherited_chat_theme.dart';
+import 'inherited_scroll_message.dart';
 import 'inherited_user.dart';
-import 'package:flutter_chat_ui/src/widgets/inherited_scroll_message.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 /// Animated list which handles automatic animations and pagination
@@ -157,7 +157,7 @@ class ChatListState extends State<ChatList>
         child: widget.itemBuilder(item, index),
       );
     } catch (e) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
   }
 

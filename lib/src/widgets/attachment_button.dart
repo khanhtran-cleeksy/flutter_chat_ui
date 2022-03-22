@@ -1,36 +1,67 @@
 import 'package:flutter/material.dart';
-import 'inherited_chat_theme.dart';
-import 'inherited_l10n.dart';
 
 /// A class that represents attachment button widget
-class AttachmentButton extends StatelessWidget {
+class AttachmentButton extends StatefulWidget {
   /// Creates attachment button widget
   const AttachmentButton({
     Key? key,
-    this.onPressed,
+    this.hasFocusInput = false,
+    this.prefixInput = const <Widget>[],
+    required this.onTapAttachment,
   }) : super(key: key);
 
   /// Callback for attachment button tap event
-  final void Function()? onPressed;
+  final bool hasFocusInput;
+  final List<Widget> prefixInput;
+  final Function() onTapAttachment;
+
+  @override
+  State<AttachmentButton> createState() => _AttachmentButtonState();
+}
+
+class _AttachmentButtonState extends State<AttachmentButton> {
+  ValueNotifier<bool> isTapAttachment = ValueNotifier(false);
+
+  void updateIconButton() {
+    if (widget.hasFocusInput && isTapAttachment.value) {
+      isTapAttachment.value = !isTapAttachment.value;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 24,
-      margin: const EdgeInsets.only(right: 16),
-      width: 24,
-      child: IconButton(
-        icon: InheritedChatTheme.of(context).theme.attachmentButtonIcon != null
-            ? InheritedChatTheme.of(context).theme.attachmentButtonIcon!
-            : Image.asset(
-                'assets/icon-attachment.png',
-                color: InheritedChatTheme.of(context).theme.inputTextColor,
-                package: 'flutter_chat_ui',
-              ),
-        onPressed: onPressed,
-        padding: EdgeInsets.zero,
-        tooltip:
-            InheritedL10n.of(context).l10n.attachmentButtonAccessibilityLabel,
+    updateIconButton();
+    return IntrinsicWidth(
+      child: SizedBox(
+        height: 24,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: isTapAttachment,
+              builder: (_, bool hasTapAttachment, __) {
+                return IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: hasTapAttachment
+                      ? const Icon(
+                          Icons.expand_more,
+                          color: Color(0xff282E3E),
+                        )
+                      : Image.asset(
+                          'assets/icon_add.png',
+                          color: const Color(0xff282E3E),
+                          package: 'flutter_chat_ui',
+                        ),
+                  onPressed: () {
+                    isTapAttachment.value = !isTapAttachment.value;
+                    widget.onTapAttachment();
+                  },
+                );
+              },
+            ),
+            if (!widget.hasFocusInput) ...widget.prefixInput,
+          ],
+        ),
       ),
     );
   }

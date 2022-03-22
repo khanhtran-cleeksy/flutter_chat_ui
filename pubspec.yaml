@@ -35,6 +35,7 @@ dependency_overrides:
 flutter:
   assets:
     - packages/flutter_chat_ui/assets/icon-attachment.png
+    - packages/flutter_chat_ui/assets/icon_add.png
     - packages/flutter_chat_ui/assets/icon-delivered.png
     - packages/flutter_chat_ui/assets/icon-document.png
     - packages/flutter_chat_ui/assets/icon-error.png

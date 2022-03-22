@@ -24,7 +24,7 @@ class Input extends StatefulWidget {
   const Input({
     Key? key,
     this.isAttachmentUploading,
-    this.onAttachmentPressed,
+    this.prefixInput = const [],
     this.disableInput = false,
     this.isEmojiVisible = false,
     required this.onSendPressed,
@@ -32,14 +32,15 @@ class Input extends StatefulWidget {
     this.onTextFieldTap,
     required this.sendButtonVisibilityMode,
     required this.inputContent,
+    required this.hasFocusCallBack,
+    required this.onTapAttachment,
   }) : super(key: key);
 
   final bool? disableInput;
 
   final bool isEmojiVisible;
 
-  /// See [AttachmentButton.onPressed]
-  final void Function()? onAttachmentPressed;
+  final List<Widget> prefixInput;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -57,12 +58,16 @@ class Input extends StatefulWidget {
   /// Will be called on [TextField] tap
   final void Function()? onTextFieldTap;
 
+  final void Function(bool) hasFocusCallBack;
+
   /// Controls the visibility behavior of the [SendButton] based on the
   /// [TextField] state inside the [Input] widget.
   /// Defaults to [SendButtonVisibilityMode.editing].
   final SendButtonVisibilityMode sendButtonVisibilityMode;
 
   final String inputContent;
+
+  final Function() onTapAttachment;
 
   @override
   _InputState createState() => _InputState();
@@ -75,6 +80,7 @@ class _InputState extends State<Input> {
   final _textController = TextEditingController();
   ValueNotifier<int> lengthTextNotifier = ValueNotifier(0);
   ValueNotifier<bool> isEmojiVisibleNotifier = ValueNotifier(true);
+  ValueNotifier<bool> hasFocusNotifier = ValueNotifier(false);
   static const LIMIT_CHARACTER = 2000;
   static const START_SHOW_LIMIT = 100;
 
@@ -93,6 +99,12 @@ class _InputState extends State<Input> {
     } else {
       _sendButtonVisible = true;
     }
+
+    _inputFocusNode.addListener(() {
+      final hasFocusInput = _inputFocusNode.hasFocus;
+      hasFocusNotifier.value = hasFocusInput;
+      widget.hasFocusCallBack(hasFocusInput);
+    });
   }
 
   @override
@@ -118,7 +130,7 @@ class _InputState extends State<Input> {
     });
   }
 
-  Widget _leftWidget() {
+  Widget _leftWidget(bool hasFocusInput) {
     if (widget.isAttachmentUploading == true) {
       return Container(
         height: 24,
@@ -133,7 +145,16 @@ class _InputState extends State<Input> {
         ),
       );
     } else {
-      return AttachmentButton(onPressed: widget.onAttachmentPressed);
+      return ValueListenableBuilder(
+        valueListenable: hasFocusNotifier,
+        builder: (_, bool hasFocus, ___) {
+          return AttachmentButton(
+            prefixInput: widget.prefixInput,
+            onTapAttachment: widget.onTapAttachment,
+            hasFocusInput: hasFocus || _sendButtonVisible,
+          );
+        },
+      );
     }
   }
 
@@ -183,156 +204,133 @@ class _InputState extends State<Input> {
                       20 + _query.padding.right,
                       5 + _query.viewInsets.bottom + _query.padding.bottom,
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (widget.onAttachmentPressed != null) _leftWidget(),
-                        Expanded(
-                          child: Material(
-                            color: Colors.white,
-                            borderRadius: InheritedChatTheme.of(context)
-                                .theme
-                                .inputBorderRadius,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  ValueListenableBuilder(
-                                    valueListenable: lengthTextNotifier,
-                                    builder: (_, int length, __) {
-                                      return TextField(
-                                        readOnly: widget.disableInput!,
-                                        controller: _textController,
-                                        decoration: InputDecoration(
-                                          // focusedBorder: length > LIMIT_CHARACTER
-                                          //     ? OutlineInputBorder(
-                                          //         borderRadius:
-                                          //             BorderRadius.circular(16.0),
-                                          //         borderSide: const BorderSide(
-                                          //           width: 1,
-                                          //           color: Colors.red,
-                                          //         ),
-                                          //       )
-                                          //     : null,
-                                          border: InputBorder.none,
-                                          suffixIcon: Visibility(
-                                            visible: widget.isEmojiVisible,
-                                            child: ValueListenableBuilder(
-                                              valueListenable:
-                                                  isEmojiVisibleNotifier,
-                                              builder: (BuildContext context,
-                                                  bool isEmojiVisible, __) {
-                                                return IconButton(
-                                                  icon: Icon(
-                                                    Icons.emoji_emotions,
-                                                    color: isEmojiVisible
-                                                        ? Colors.grey
-                                                        : const Color(
-                                                                0xff2C56EA)
-                                                            .withOpacity(0.75),
-                                                  ),
-                                                  onPressed: () {
-                                                    isEmojiVisibleNotifier
-                                                            .value =
-                                                        !isEmojiVisibleNotifier
-                                                            .value;
-                                                  },
-                                                );
-                                              },
+                    child: ValueListenableBuilder(
+                      valueListenable: lengthTextNotifier,
+                      builder: (context, int length, __) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (widget.prefixInput.isNotEmpty)
+                              _leftWidget(length != 0),
+                            Expanded(
+                              child: Material(
+                                color: Colors.white,
+                                borderRadius: InheritedChatTheme.of(context)
+                                    .theme
+                                    .inputBorderRadius,
+                                child: TextField(
+                                  readOnly: widget.disableInput!,
+                                  controller: _textController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    suffixIcon: Visibility(
+                                      visible: widget.isEmojiVisible,
+                                      child: ValueListenableBuilder(
+                                        valueListenable: isEmojiVisibleNotifier,
+                                        builder: (BuildContext context,
+                                            bool isEmojiVisible, __) {
+                                          return IconButton(
+                                            icon: Icon(
+                                              Icons.emoji_emotions,
+                                              color: isEmojiVisible
+                                                  ? Colors.grey
+                                                  : const Color(0xff2C56EA)
+                                                      .withOpacity(0.75),
                                             ),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.all(12.0),
-                                          hintStyle:
-                                              InheritedChatTheme.of(context)
-                                                  .theme
-                                                  .inputTextStyle
-                                                  .copyWith(
-                                                    color:
-                                                        InheritedChatTheme.of(
-                                                                context)
-                                                            .theme
-                                                            .inputTextColor
-                                                            .withOpacity(0.5),
-                                                  ),
-                                          hintText: InheritedL10n.of(context)
-                                              .l10n
-                                              .inputPlaceholder,
-                                        ),
-                                        focusNode: _inputFocusNode,
-                                        keyboardType: TextInputType.multiline,
-                                        maxLines: 5,
-                                        minLines: 1,
-                                        onChanged: (content) {
-                                          if (content.isNotEmpty) {
-                                            lengthTextNotifier.value =
-                                                content.length;
-                                          } else {
-                                            lengthTextNotifier.value = 0;
-                                          }
-                                          if (widget.onTextChanged != null) {
-                                            widget.onTextChanged!(content);
-                                          }
+                                            onPressed: () {
+                                              isEmojiVisibleNotifier.value =
+                                                  !isEmojiVisibleNotifier.value;
+                                            },
+                                          );
                                         },
-                                        onTap: widget.onTextFieldTap,
-                                        style: InheritedChatTheme.of(context)
-                                            .theme
-                                            .inputTextStyle
-                                            .copyWith(
-                                              color:
-                                                  InheritedChatTheme.of(context)
-                                                      .theme
-                                                      .inputTextColor,
-                                            ),
-                                        textCapitalization:
-                                            TextCapitalization.sentences,
-                                      );
-                                    },
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.all(12.0),
+                                    hintStyle: InheritedChatTheme.of(context)
+                                        .theme
+                                        .inputTextStyle
+                                        .copyWith(
+                                          color: InheritedChatTheme.of(context)
+                                              .theme
+                                              .inputTextColor
+                                              .withOpacity(0.5),
+                                        ),
+                                    hintText: InheritedL10n.of(context)
+                                        .l10n
+                                        .inputPlaceholder,
                                   ),
-                                ],
+                                  focusNode: _inputFocusNode,
+                                  keyboardType: TextInputType.multiline,
+                                  maxLines: 5,
+                                  minLines: 1,
+                                  onChanged: (content) {
+                                    if (content.isNotEmpty) {
+                                      lengthTextNotifier.value = content.length;
+                                    } else {
+                                      lengthTextNotifier.value = 0;
+                                    }
+                                    if (widget.onTextChanged != null) {
+                                      widget.onTextChanged!(content);
+                                    }
+                                  },
+                                  onTap: widget.onTextFieldTap,
+                                  style: InheritedChatTheme.of(context)
+                                      .theme
+                                      .inputTextStyle
+                                      .copyWith(
+                                        color: InheritedChatTheme.of(context)
+                                            .theme
+                                            .inputTextColor,
+                                      ),
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: lengthTextNotifier,
-                          builder: (_, int lengthText, __) {
-                            return Column(
-                              children: [
-                                Visibility(
-                                  visible: lengthText >= START_SHOW_LIMIT,
-                                  child: Container(
-                                    height: 24,
-                                    padding: const EdgeInsets.only(left: 14),
-                                    alignment: Alignment.centerRight,
-                                    child: FittedBox(
-                                      child: Text(
-                                        '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: lengthText <= LIMIT_CHARACTER
-                                              ? const Color(0xffA1A9BB)
-                                              : const Color(0xffCE2B10),
+                            ValueListenableBuilder(
+                              valueListenable: lengthTextNotifier,
+                              builder: (_, int lengthText, __) {
+                                return Column(
+                                  children: [
+                                    Visibility(
+                                      visible: lengthText >= START_SHOW_LIMIT,
+                                      child: Container(
+                                        height: 24,
+                                        padding:
+                                            const EdgeInsets.only(left: 14),
+                                        alignment: Alignment.centerRight,
+                                        child: FittedBox(
+                                          child: Text(
+                                            '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  lengthText <= LIMIT_CHARACTER
+                                                      ? const Color(0xffA1A9BB)
+                                                      : const Color(0xffCE2B10),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: _sendButtonVisible,
-                                  child: SendButton(
-                                    isActive: lengthText > LIMIT_CHARACTER,
-                                    onPressed: lengthText <= LIMIT_CHARACTER
-                                        ? _handleSendPressed
-                                        : () {},
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
+                                    Visibility(
+                                      visible: _sendButtonVisible,
+                                      child: SendButton(
+                                        isActive: lengthText > LIMIT_CHARACTER,
+                                        onPressed: lengthText <= LIMIT_CHARACTER
+                                            ? _handleSendPressed
+                                            : () {},
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   ValueListenableBuilder(
