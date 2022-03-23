@@ -32,7 +32,7 @@ class Chat extends StatefulWidget {
     this.customBottomWidget,
     this.buildMessageAvatar,
     this.inputHeader = const <Widget>[],
-    this.inputFooter = const <Widget>[],
+    this.inputFooter,
     this.customDateHeaderText,
     this.customMessageBuilder,
     this.dateFormat,
@@ -97,7 +97,7 @@ class Chat extends StatefulWidget {
 
   final List<Widget> inputHeader;
 
-  final List<Widget> inputFooter;
+  final Widget? inputFooter;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -510,8 +510,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   }
 
   bool get isValidInputFooter {
-    return widget.inputFooter.isNotEmpty &&
-        widget.inputFooter.first is! SizedBox;
+    return widget.inputFooter != null;
   }
 
   @override
@@ -646,12 +645,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
       builder: (context, bool isShowFooter, ___) {
         return Visibility(
           visible: isShowFooter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...widget.inputFooter,
-            ],
-          ),
+          child: widget.inputFooter ?? const SizedBox.shrink(),
         );
       },
     );
