@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_ui/src/types/flutter_chat_types.dart';
 import 'package:intl/intl.dart';
 import './models/date_header.dart';
 import './models/emoji_enlargement_behavior.dart';
@@ -152,6 +153,21 @@ List<Object> calculateChatMessages(
 
       nextMessageInGroup = nextMessageSameAuthor &&
           nextMessage.createdAt! - message.createdAt! <= groupMessagesThreshold;
+    }
+
+    if (message.id == "null") {
+      if (message.type == types.MessageType.custom) {
+        if (message.metadata != null) {
+          if (message.metadata!.isNotEmpty) {
+            chatMessages.insert(
+              0,
+              DateHeader(
+                text: message.metadata!['body'] ?? '',
+              ),
+            );
+          }
+        }
+      }
     }
 
     if (isFirst && messageHasCreatedAt) {

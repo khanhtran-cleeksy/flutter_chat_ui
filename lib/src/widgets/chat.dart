@@ -317,8 +317,13 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         showUserNames: widget.showUserNames,
         timeFormat: widget.timeFormat,
       );
+      (result[0] as List<Object>).removeWhere((element) =>
+          element is Map &&
+          element['message'].type == types.MessageType.custom &&
+          element['message'].id == "null");
 
       _chatMessages = result[0] as List<Object>;
+
       _gallery = result[1] as List<PreviewImage>;
     }
   }
