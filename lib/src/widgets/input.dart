@@ -34,6 +34,7 @@ class Input extends StatefulWidget {
     required this.inputContent,
     required this.hasFocusCallBack,
     required this.onTapAttachment,
+    this.onTapAddAttachment,
   }) : super(key: key);
 
   final bool? disableInput;
@@ -68,6 +69,8 @@ class Input extends StatefulWidget {
   final String inputContent;
 
   final Function() onTapAttachment;
+
+  final Function()? onTapAddAttachment;
 
   @override
   _InputState createState() => _InputState();
@@ -152,6 +155,7 @@ class _InputState extends State<Input> {
             prefixInput: widget.prefixInput,
             onTapAttachment: widget.onTapAttachment,
             hasFocusInput: hasFocus || _sendButtonVisible,
+            onTapAddAttachment: widget.onTapAddAttachment,
           );
         },
       );

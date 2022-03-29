@@ -78,6 +78,7 @@ class Chat extends StatefulWidget {
     required this.onImagePressed,
     this.channelTypeWidget,
     this.senderBuilder,
+    this.onTapAddAttachment,
   }) : super(key: key);
 
   final List<Widget> prefixInput;
@@ -263,6 +264,8 @@ class Chat extends StatefulWidget {
 
   /// show sender's avatar
   final Widget? senderBuilder;
+
+  final Function()? onTapAddAttachment;
 
   @override
   _ChatState createState() => _ChatState();
@@ -630,6 +633,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                               FocusScope.of(context).unfocus();
                               isTapShowFooter.value = !isTapShowFooter.value;
                             },
+                            onTapAddAttachment: widget.onTapAddAttachment,
                           ),
                       _buildInputFooter(),
                     ],
