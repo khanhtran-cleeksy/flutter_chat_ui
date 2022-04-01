@@ -77,7 +77,6 @@ class Chat extends StatefulWidget {
     required this.inputContent,
     required this.onImagePressed,
     this.channelTypeWidget,
-    this.senderBuilder,
     this.onTapAddAttachment,
   }) : super(key: key);
 
@@ -261,9 +260,6 @@ class Chat extends StatefulWidget {
 
   /// Selection channel to send message
   final Widget? channelTypeWidget;
-
-  /// show sender's avatar
-  final Widget? senderBuilder;
 
   final Function()? onTapAddAttachment;
 
@@ -469,7 +465,6 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         showStatus: map['showStatus'] == true,
         showUserAvatars: widget.showUserAvatars,
         usePreviewData: widget.usePreviewData,
-        senderBuilder: widget.senderBuilder,
       );
     }
   }

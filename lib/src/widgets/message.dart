@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import '../models/emoji_enlargement_behavior.dart';
@@ -37,7 +38,6 @@ class Message extends StatelessWidget {
     required this.showUserAvatars,
     this.textMessageBuilder,
     required this.usePreviewData,
-    this.senderBuilder,
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -124,8 +124,6 @@ class Message extends StatelessWidget {
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
 
-  final Widget? senderBuilder;
-
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
       message.author,
@@ -168,35 +166,77 @@ class Message extends StatelessWidget {
     bool currentUserIsAuthor,
     bool enlargeEmojis,
   ) {
-    return bubbleBuilder != null
-        ? bubbleBuilder!(
-            _messageBuilder(),
-            message: message,
-            nextMessageInGroup: roundBorder,
-          )
-        : enlargeEmojis && hideBackgroundOnEmojiMessages
-            ? _messageBuilder()
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (currentUserIsAuthor)
-                    senderBuilder ?? const SizedBox.shrink(),
-                  const SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: borderRadius,
-                      color: !currentUserIsAuthor ||
-                              message.type == types.MessageType.image
-                          ? InheritedChatTheme.of(context).theme.secondaryColor
-                          : InheritedChatTheme.of(context).theme.primaryColor,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: borderRadius,
-                      child: _messageBuilder(),
+    if (bubbleBuilder != null) {
+      return bubbleBuilder!(
+        _messageBuilder(),
+        message: message,
+        nextMessageInGroup: roundBorder,
+      );
+    } else {
+      return enlargeEmojis && hideBackgroundOnEmojiMessages
+          ? _messageBuilder()
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (currentUserIsAuthor)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      height: 25,
+                      width: 150,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              message.author.firstName ?? '',
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xff666E83),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(64),
+                            child: CachedNetworkImage(
+                              imageUrl: message.author.imageUrl ?? '',
+                              width: 20,
+                              height: 20,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              fadeOutDuration: const Duration(milliseconds: 50),
+                              placeholderFadeInDuration:
+                                  const Duration(milliseconds: 0),
+                              errorWidget: (_, __, ___) =>
+                                  const Icon(Icons.error),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              );
+                const SizedBox(height: 6),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    color: !currentUserIsAuthor ||
+                            message.type == types.MessageType.image
+                        ? InheritedChatTheme.of(context).theme.secondaryColor
+                        : InheritedChatTheme.of(context).theme.primaryColor,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: borderRadius,
+                    child: _messageBuilder(),
+                  ),
+                ),
+              ],
+            );
+    }
   }
 
   Widget _messageBuilder() {
