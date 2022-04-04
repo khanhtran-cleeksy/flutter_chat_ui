@@ -54,17 +54,21 @@ class TextMessage extends StatelessWidget {
     double width,
     BuildContext context,
   ) {
-    final bodyTextStyle = user.id == message.author.id
+    var isOwner = user.id == message.author.id;
+    if(message.metadata != null) {
+      isOwner = message.metadata!['isOwner'];
+    }
+    final bodyTextStyle = isOwner
         ? InheritedChatTheme.of(context).theme.sentMessageBodyTextStyle
         : InheritedChatTheme.of(context).theme.receivedMessageBodyTextStyle;
-    final linkDescriptionTextStyle = user.id == message.author.id
+    final linkDescriptionTextStyle = isOwner
         ? InheritedChatTheme.of(context)
             .theme
             .sentMessageLinkDescriptionTextStyle
         : InheritedChatTheme.of(context)
             .theme
             .receivedMessageLinkDescriptionTextStyle;
-    final linkTitleTextStyle = user.id == message.author.id
+    final linkTitleTextStyle = isOwner
         ? InheritedChatTheme.of(context).theme.sentMessageLinkTitleTextStyle
         : InheritedChatTheme.of(context)
             .theme
@@ -106,7 +110,10 @@ class TextMessage extends StatelessWidget {
     final color =
         getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
     final name = getUserName(message.author);
-
+    var isOwner = user.id == message.author.id;
+    if(message.metadata != null) {
+      isOwner = message.metadata!['isOwner'];
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,7 +129,7 @@ class TextMessage extends StatelessWidget {
           ),
         SelectableText(
           message.text,
-          style: user.id == message.author.id
+          style: isOwner
               ? enlargeEmojis
                   ? theme.sentEmojiMessageTextStyle
                   : theme.sentMessageBodyTextStyle

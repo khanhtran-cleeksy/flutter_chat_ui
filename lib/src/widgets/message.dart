@@ -245,7 +245,7 @@ class Message extends StatelessWidget {
         final customMessage = message as types.CustomMessage;
         return customMessageBuilder != null
             ? customMessageBuilder!(customMessage, messageWidth: messageWidth)
-            : const SizedBox();
+            : const SizedBox.shrink();
       case types.MessageType.file:
         final fileMessage = message as types.FileMessage;
         return fileMessageBuilder != null
@@ -267,7 +267,7 @@ class Message extends StatelessWidget {
           usePreviewData: usePreviewData,
         );
       default:
-        return const SizedBox();
+        return const SizedBox.shrink();
     }
   }
 
