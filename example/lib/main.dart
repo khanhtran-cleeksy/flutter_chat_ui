@@ -240,7 +240,7 @@ class _ChatPageState extends State<ChatPage> {
                     hasImage ? NetworkImage(message.author.imageUrl!) : null,
                 backgroundColor: Colors.blueGrey,
                 radius: 16,
-                child: !hasImage ? Text(message.author.firstName!) : null,
+                child: !hasImage ? Text(message.author.firstName ?? '') : null,
               ),
             );
           },

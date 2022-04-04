@@ -322,7 +322,10 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _user = InheritedUser.of(context).user;
-    final _currentUserIsAuthor = _user.id == message.author.id;
+    bool _currentUserIsAuthor = _user.id == message.author.id;
+    if (message.metadata != null) {
+      _currentUserIsAuthor = message.metadata!['isOwner'] as bool;
+    }
     final _messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
     final _borderRadius = BorderRadius.only(
