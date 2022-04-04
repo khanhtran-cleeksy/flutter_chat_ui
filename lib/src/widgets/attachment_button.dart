@@ -8,14 +8,14 @@ class AttachmentButton extends StatefulWidget {
     this.hasFocusInput = false,
     this.prefixInput = const <Widget>[],
     required this.onTapAttachment,
-    this.onTapAddAttachment,
+    required this.onTapAddAttachment,
   }) : super(key: key);
 
   /// Callback for attachment button tap event
   final bool hasFocusInput;
   final List<Widget> prefixInput;
   final Function() onTapAttachment;
-  final Function()? onTapAddAttachment;
+  final Function() onTapAddAttachment;
 
   @override
   State<AttachmentButton> createState() => _AttachmentButtonState();
@@ -55,7 +55,7 @@ class _AttachmentButtonState extends State<AttachmentButton> {
                           package: 'flutter_chat_ui',
                         ),
                   onPressed: () {
-                    widget.onTapAddAttachment!() ?? () {};
+                    widget.onTapAddAttachment() ?? () {};
                     isTapAttachment.value = !isTapAttachment.value;
                     widget.onTapAttachment();
                   },

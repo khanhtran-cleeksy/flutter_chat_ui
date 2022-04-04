@@ -77,7 +77,7 @@ class Chat extends StatefulWidget {
     required this.inputContent,
     required this.onImagePressed,
     this.channelTypeWidget,
-    this.onTapAddAttachment,
+    required this.onTapAddAttachment,
   }) : super(key: key);
 
   final List<Widget> prefixInput;
@@ -261,7 +261,7 @@ class Chat extends StatefulWidget {
   /// Selection channel to send message
   final Widget? channelTypeWidget;
 
-  final Function()? onTapAddAttachment;
+  final Function() onTapAddAttachment;
 
   @override
   _ChatState createState() => _ChatState();
