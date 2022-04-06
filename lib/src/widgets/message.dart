@@ -213,7 +213,7 @@ class Message extends StatelessWidget {
                               placeholderFadeInDuration:
                                   const Duration(milliseconds: 0),
                               errorWidget: (_, __, ___) =>
-                                  const Icon(Icons.error),
+                                  const SizedBox.shrink(),
                             ),
                           ),
                         ],

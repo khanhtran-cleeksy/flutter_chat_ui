@@ -155,10 +155,10 @@ List<Object> calculateChatMessages(
           nextMessage.createdAt! - message.createdAt! <= groupMessagesThreshold;
     }
 
-    if (message.id == "null") {
-      if (message.type == types.MessageType.custom) {
-        if (message.metadata != null) {
-          if (message.metadata!.isNotEmpty) {
+    if (message.type == types.MessageType.custom) {
+      if (message.metadata != null) {
+        if (message.metadata!.isNotEmpty) {
+          if (message.metadata!['isConversationActivity'] ?? false) {
             chatMessages.insert(
               0,
               DateHeader(
