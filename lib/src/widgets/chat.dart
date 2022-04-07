@@ -416,10 +416,12 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         margin: widget.theme.dateDividerMargin,
         child: Text(
           object.text,
           style: widget.theme.dateDividerTextStyle,
+          textAlign: TextAlign.center,
         ),
       );
     } else if (object is MessageSpacer) {
