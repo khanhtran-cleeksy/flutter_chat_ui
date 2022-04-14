@@ -535,69 +535,12 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                   child: Column(
                     children: [
                       Flexible(
-                        child: widget.messages.isEmpty
-                            ? SizedBox.expand(
-                                child: _emptyStateBuilder(),
-                              )
-                            : GestureDetector(
-                                onTap: () {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  widget.onBackgroundTap?.call();
-                                },
-                                child: LayoutBuilder(
-                                  builder: (BuildContext context,
-                                          BoxConstraints constraints) =>
-                                      ChatList(
-                                    key: _chatListKey,
-                                    isLastPage: widget.isLastPage,
-                                    itemBuilder: (item, index) =>
-                                        _messageBuilder(
-                                            item, constraints, context),
-                                    items: _chatMessages,
-                                    onEndReached: widget.onEndReached,
-                                    onEndReachedThreshold:
-                                        widget.onEndReachedThreshold,
-                                    scrollPhysics: widget.scrollPhysics,
-                                  ),
-                                ),
-                              ),
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _isLatestMessage,
-                        builder: (_, bool isLatest, __) {
-                          return Visibility(
-                            visible: isLatest,
-                            child: Container(
-                              height: 45,
-                              width: 45,
-                              alignment: Alignment.center,
-                              child: RaisedButton(
-                                clipBehavior: Clip.hardEdge,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50.0),
-                                ),
-                                color: Colors.white,
-                                onPressed: () {
-                                  Scrollable.ensureVisible(
-                                    context,
-                                    curve: Curves.fastOutSlowIn,
-                                    alignmentPolicy:
-                                        ScrollPositionAlignmentPolicy
-                                            .keepVisibleAtEnd,
-                                  );
-                                  _chatListKey.currentState!.scrollToCounter();
-                                },
-                                child: const Icon(
-                                  Icons.arrow_downward,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        child: Stack(
+                          children: [
+                            _buildChatList(),
+                            _buildScrollLatestMessage(context),
+                          ],
+                        ),
                       ),
                       if (isValidInputHeader) ...widget.inputHeader,
                       if (isValidInputHeader)
@@ -641,6 +584,74 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildChatList() {
+    return widget.messages.isEmpty
+        ? SizedBox.expand(
+      child: _emptyStateBuilder(),
+    )
+        : GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+        widget.onBackgroundTap?.call();
+      },
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) =>
+            ChatList(
+              key: _chatListKey,
+              isLastPage: widget.isLastPage,
+              itemBuilder: (item, index) =>
+                  _messageBuilder(item, constraints, context),
+              items: _chatMessages,
+              onEndReached: widget.onEndReached,
+              onEndReachedThreshold: widget.onEndReachedThreshold,
+              scrollPhysics: widget.scrollPhysics,
+            ),
+      ),
+    );
+  }
+
+  Positioned _buildScrollLatestMessage(BuildContext context) {
+    return Positioned(
+      bottom: 15,
+      left: MediaQuery.of(context).size.width / 2 - 45 / 2,
+      child: ValueListenableBuilder(
+        valueListenable: _isLatestMessage,
+        builder: (_, bool isLatest, __) {
+          return Visibility(
+            visible: isLatest,
+            child: Container(
+              height: 45,
+              width: 45,
+              alignment: Alignment.center,
+              child: RaisedButton(
+                clipBehavior: Clip.hardEdge,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50.0),
+                ),
+                color: Colors.white,
+                onPressed: () {
+                  Scrollable.ensureVisible(
+                    context,
+                    curve: Curves.fastOutSlowIn,
+                    alignmentPolicy:
+                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                  );
+                  _chatListKey.currentState!.scrollToCounter();
+                },
+                child: const Icon(
+                  Icons.arrow_downward,
+                  color: Colors.blue,
+                  size: 20,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
