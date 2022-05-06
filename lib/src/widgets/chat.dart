@@ -553,6 +553,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                         ),
                       widget.customBottomWidget ??
                           Input(
+                            key: Key(widget.inputContent),
                             isAttachmentUploading: widget.isAttachmentUploading,
                             prefixInput: widget.prefixInput,
                             onSendPressed: widget.onSendPressed,
