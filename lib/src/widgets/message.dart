@@ -32,6 +32,7 @@ class Message extends StatelessWidget {
     this.onMessageTap,
     this.onPreviewDataFetched,
     required this.roundBorder,
+    required this.isFirstInGroup,
     required this.showAvatar,
     required this.showName,
     required this.showStatus,
@@ -46,14 +47,14 @@ class Message extends StatelessWidget {
   /// if the message is a part of a group (messages are grouped when written
   /// in quick succession by the same author)
   final Widget Function(
-    Widget child, {
-    required types.Message message,
-    required bool nextMessageInGroup,
-  })? bubbleBuilder;
+      Widget child, {
+      required types.Message message,
+      required bool nextMessageInGroup,
+      })? bubbleBuilder;
 
   /// Build a custom message inside predefined bubble
   final Widget Function(types.CustomMessage, {required int messageWidth})?
-      customMessageBuilder;
+  customMessageBuilder;
 
   /// Controls the enlargement behavior of the emojis in the
   /// [types.TextMessage].
@@ -72,14 +73,14 @@ class Message extends StatelessWidget {
 
   /// Build a file message inside predefined bubble
   final Widget Function(types.FileMessage, {required int messageWidth})?
-      fileMessageBuilder;
+  fileMessageBuilder;
 
   /// Hide background for messages containing only emojis.
   final bool hideBackgroundOnEmojiMessages;
 
   /// Build an image message inside predefined bubble
   final Widget Function(types.ImageMessage, {required int messageWidth})?
-      imageMessageBuilder;
+  imageMessageBuilder;
 
   /// Any message type
   final types.Message message;
@@ -104,10 +105,13 @@ class Message extends StatelessWidget {
 
   /// See [TextMessage.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
-      onPreviewDataFetched;
+  onPreviewDataFetched;
 
   /// Rounds border of the message to visually group messages together.
   final bool roundBorder;
+
+  /// Check isFirstInGroup.
+  final bool isFirstInGroup;
 
   /// Show user avatar for the received message. Useful for a group chat.
   final bool showAvatar;
@@ -127,45 +131,48 @@ class Message extends StatelessWidget {
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
       message.author,
-      InheritedChatTheme.of(context).theme.userAvatarNameColors,
+      InheritedChatTheme
+          .of(context)
+          .theme
+          .userAvatarNameColors,
     );
     final hasImage = message.author.imageUrl != null;
     final initials = getUserInitials(message.author);
 
     return showAvatar
         ? Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => onAvatarTap?.call(message.author),
-              child: CircleAvatar(
-                backgroundColor: hasImage
-                    ? InheritedChatTheme.of(context)
-                        .theme
-                        .userAvatarImageBackgroundColor
-                    : color,
-                backgroundImage:
-                    hasImage ? NetworkImage(message.author.imageUrl!) : null,
-                radius: 16,
-                child: !hasImage
-                    ? Text(
-                        initials,
-                        style: InheritedChatTheme.of(context)
-                            .theme
-                            .userAvatarTextStyle,
-                      )
-                    : null,
-              ),
-            ),
+      margin: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () => onAvatarTap?.call(message.author),
+        child: CircleAvatar(
+          backgroundColor: hasImage
+              ? InheritedChatTheme
+              .of(context)
+              .theme
+              .userAvatarImageBackgroundColor
+              : color,
+          backgroundImage:
+          hasImage ? NetworkImage(message.author.imageUrl!) : null,
+          radius: 16,
+          child: !hasImage
+              ? Text(
+            initials,
+            style: InheritedChatTheme
+                .of(context)
+                .theme
+                .userAvatarTextStyle,
           )
+              : null,
+        ),
+      ),
+    )
         : const SizedBox(width: 40);
   }
 
-  Widget _bubbleBuilder(
-    BuildContext context,
-    BorderRadius borderRadius,
-    bool currentUserIsAuthor,
-    bool enlargeEmojis,
-  ) {
+  Widget _bubbleBuilder(BuildContext context,
+      BorderRadius borderRadius,
+      bool currentUserIsAuthor,
+      bool enlargeEmojis, bool isFirstInGroup,) {
     if (bubbleBuilder != null) {
       return bubbleBuilder!(
         _messageBuilder(),
@@ -176,66 +183,72 @@ class Message extends StatelessWidget {
       return enlargeEmojis && hideBackgroundOnEmojiMessages
           ? _messageBuilder()
           : Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (currentUserIsAuthor)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(
-                      height: 25,
-                      width: 150,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              message.author.firstName ?? '',
-                              textAlign: TextAlign.right,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xff666E83),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(64),
-                            child: CachedNetworkImage(
-                              imageUrl: message.author.imageUrl ?? '',
-                              width: 20,
-                              height: 20,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
-                              fadeInDuration: const Duration(milliseconds: 200),
-                              fadeOutDuration: const Duration(milliseconds: 50),
-                              placeholderFadeInDuration:
-                                  const Duration(milliseconds: 0),
-                              errorWidget: (_, __, ___) =>
-                                  const SizedBox.shrink(),
-                            ),
-                          ),
-                        ],
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (currentUserIsAuthor && message.author.firstName != null &&
+              message.author.firstName!.isNotEmpty && isFirstInGroup )
+            Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                height: 25,
+                width: 150,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        message.author.firstName ?? '',
+                        textAlign: TextAlign.right,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xff666E83),
+                        ),
                       ),
                     ),
-                  ),
-                const SizedBox(height: 6),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: borderRadius,
-                    color: !currentUserIsAuthor ||
-                            message.type == types.MessageType.image
-                        ? InheritedChatTheme.of(context).theme.secondaryColor
-                        : InheritedChatTheme.of(context).theme.primaryColor,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: borderRadius,
-                    child: _messageBuilder(),
-                  ),
+                    const SizedBox(width: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(64),
+                      child: CachedNetworkImage(
+                        imageUrl: message.author.imageUrl ?? '',
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.center,
+                        fadeInDuration: const Duration(milliseconds: 200),
+                        fadeOutDuration: const Duration(milliseconds: 50),
+                        placeholderFadeInDuration:
+                        const Duration(milliseconds: 0),
+                        errorWidget: (_, __, ___) =>
+                        const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            );
+              ),
+            ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              color: !currentUserIsAuthor ||
+                  message.type == types.MessageType.image
+                  ? InheritedChatTheme
+                  .of(context)
+                  .theme
+                  .secondaryColor
+                  : InheritedChatTheme
+                  .of(context)
+                  .theme
+                  .primaryColor,
+            ),
+            child: ClipRRect(
+              borderRadius: borderRadius,
+              child: _messageBuilder(),
+            ),
+          ),
+        ],
+      );
     }
   }
 
@@ -272,73 +285,125 @@ class Message extends StatelessWidget {
   }
 
   Widget _statusBuilder(BuildContext context) {
-    switch (message.status) {
-      case types.Status.delivered:
-      case types.Status.sent:
-        return InheritedChatTheme.of(context).theme.deliveredIcon != null
-            ? InheritedChatTheme.of(context).theme.deliveredIcon!
-            : Image.asset(
-                'assets/icon-delivered.png',
-                color: InheritedChatTheme.of(context).theme.primaryColor,
-                package: 'flutter_chat_ui',
-              );
-      case types.Status.error:
-        return InheritedChatTheme.of(context).theme.errorIcon != null
-            ? InheritedChatTheme.of(context).theme.errorIcon!
-            : Image.asset(
-                'assets/icon-error.png',
-                color: InheritedChatTheme.of(context).theme.errorColor,
-                package: 'flutter_chat_ui',
-              );
-      case types.Status.seen:
-        return InheritedChatTheme.of(context).theme.seenIcon != null
-            ? InheritedChatTheme.of(context).theme.seenIcon!
-            : Image.asset(
-                'assets/icon-seen.png',
-                color: InheritedChatTheme.of(context).theme.primaryColor,
-                package: 'flutter_chat_ui',
-              );
-      case types.Status.sending:
-        return InheritedChatTheme.of(context).theme.sendingIcon != null
-            ? InheritedChatTheme.of(context).theme.sendingIcon!
-            : Center(
-                child: SizedBox(
-                  height: 10,
-                  width: 10,
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.transparent,
-                    strokeWidth: 1.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      InheritedChatTheme.of(context).theme.primaryColor,
-                    ),
-                  ),
+    if (!roundBorder || roundBorder && message.status == types.Status.sending ||
+        message.status == types.Status.error) {
+      switch (message.status) {
+        case types.Status.delivered:
+        case types.Status.sent:
+          return InheritedChatTheme
+              .of(context)
+              .theme
+              .deliveredIcon != null
+              ? InheritedChatTheme
+              .of(context)
+              .theme
+              .deliveredIcon!
+              : Image.asset(
+            'assets/icon-delivered.png',
+            color: InheritedChatTheme
+                .of(context)
+                .theme
+                .primaryColor,
+            package: 'flutter_chat_ui',
+          );
+        case types.Status.error:
+          return InheritedChatTheme
+              .of(context)
+              .theme
+              .errorIcon != null
+              ? InheritedChatTheme
+              .of(context)
+              .theme
+              .errorIcon!
+              : Image.asset(
+            'assets/icon-error.png',
+            color: InheritedChatTheme
+                .of(context)
+                .theme
+                .errorColor,
+            package: 'flutter_chat_ui',
+          );
+        case types.Status.seen:
+          return InheritedChatTheme
+              .of(context)
+              .theme
+              .seenIcon != null
+              ? InheritedChatTheme
+              .of(context)
+              .theme
+              .seenIcon!
+              : Image.asset(
+            'assets/icon-seen.png',
+            color: InheritedChatTheme
+                .of(context)
+                .theme
+                .primaryColor,
+            package: 'flutter_chat_ui',
+          );
+        case types.Status.sending:
+          return InheritedChatTheme
+              .of(context)
+              .theme
+              .sendingIcon != null
+              ? InheritedChatTheme
+              .of(context)
+              .theme
+              .sendingIcon!
+              : Center(
+            child: SizedBox(
+              height: 10,
+              width: 10,
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.transparent,
+                strokeWidth: 1.5,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  InheritedChatTheme
+                      .of(context)
+                      .theme
+                      .primaryColor,
                 ),
-              );
-      default:
-        return const SizedBox.shrink();
+              ),
+            ),
+          );
+        default:
+          return const SizedBox.shrink();
+      }
     }
+    else
+      return const SizedBox.shrink();
   }
 
   @override
   Widget build(BuildContext context) {
-    final _user = InheritedUser.of(context).user;
+    final _user = InheritedUser
+        .of(context)
+        .user;
     bool _currentUserIsAuthor = _user.id == message.author.id;
     if (message.metadata != null) {
       _currentUserIsAuthor = message.metadata!['isOwner'] as bool;
     }
     final _messageBorderRadius =
-        InheritedChatTheme.of(context).theme.messageBorderRadius;
+        InheritedChatTheme
+            .of(context)
+            .theme
+            .messageBorderRadius;
     final _borderRadius = BorderRadius.only(
       bottomLeft: Radius.circular(
-        _currentUserIsAuthor || roundBorder ? _messageBorderRadius : 0,
+        _currentUserIsAuthor ? _messageBorderRadius : roundBorder
+            ? 12
+            : _messageBorderRadius,
       ),
       bottomRight: Radius.circular(_currentUserIsAuthor
           ? roundBorder
-              ? _messageBorderRadius
-              : 0
+          ? 8
+          : _messageBorderRadius
           : _messageBorderRadius),
-      topLeft: Radius.circular(_messageBorderRadius),
-      topRight: Radius.circular(_messageBorderRadius),
+      topLeft: Radius.circular(_currentUserIsAuthor
+          ? _messageBorderRadius : isFirstInGroup ? _messageBorderRadius
+          : 8),
+      topRight: Radius.circular(_currentUserIsAuthor
+          ? isFirstInGroup ? _messageBorderRadius : 8
+          : _messageBorderRadius),
     );
     final _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
@@ -347,19 +412,19 @@ class Message extends StatelessWidget {
                 emojiEnlargementBehavior, message as types.TextMessage);
     return Container(
       alignment:
-          _currentUserIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
+      _currentUserIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
       margin: const EdgeInsets.only(
-        bottom: 4,
-        left: 20,
+          left: 20,
+          top: 2
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!_currentUserIsAuthor && showUserAvatars)
-            buildMessageAvatar != null
-                ? buildMessageAvatar!(message)
-                : _avatarBuilder(context),
+          !_currentUserIsAuthor && showUserAvatars && !roundBorder ?
+          buildMessageAvatar != null
+              ? buildMessageAvatar!(message)
+              : _avatarBuilder(context) : SizedBox(width: 39),
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: messageWidth.toDouble(),
@@ -375,6 +440,7 @@ class Message extends StatelessWidget {
                     _borderRadius,
                     _currentUserIsAuthor,
                     _enlargeEmojis,
+                    isFirstInGroup,
                   ),
                 ),
               ],
@@ -382,20 +448,23 @@ class Message extends StatelessWidget {
           ),
           if (_currentUserIsAuthor)
             Padding(
-              padding: InheritedChatTheme.of(context).theme.statusIconPadding,
+              padding: InheritedChatTheme
+                  .of(context)
+                  .theme
+                  .statusIconPadding,
               child: showStatus
                   ? GestureDetector(
-                      onLongPress: () =>
-                          onMessageStatusLongPress?.call(message),
-                      onTap: () => onMessageStatusTap?.call(message),
-                      child: Center(
-                        child: SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: _statusBuilder(context),
-                        ),
-                      ),
-                    )
+                onLongPress: () =>
+                    onMessageStatusLongPress?.call(message),
+                onTap: () => onMessageStatusTap?.call(message),
+                child: Center(
+                  child: SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: _statusBuilder(context),
+                  ),
+                ),
+              )
                   : null,
             ),
         ],

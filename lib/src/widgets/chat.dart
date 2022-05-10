@@ -84,10 +84,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.bubbleBuilder]
   final Widget Function(
-    Widget child, {
-    required types.Message message,
-    required bool nextMessageInGroup,
-  })? bubbleBuilder;
+      Widget child, {
+      required types.Message message,
+      required bool nextMessageInGroup,
+      })? bubbleBuilder;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
@@ -110,7 +110,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.customMessageBuilder]
   final Widget Function(types.CustomMessage, {required int messageWidth})?
-      customMessageBuilder;
+  customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -146,7 +146,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.fileMessageBuilder]
   final Widget Function(types.FileMessage, {required int messageWidth})?
-      fileMessageBuilder;
+  fileMessageBuilder;
 
   /// Time (in ms) between two messages when we will visually group them.
   /// Default value is 1 minute, 60000 ms. When time between two messages
@@ -158,7 +158,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.imageMessageBuilder]
   final Widget Function(types.ImageMessage, {required int messageWidth})?
-      imageMessageBuilder;
+  imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
@@ -200,7 +200,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
-      onPreviewDataFetched;
+  onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
   final void Function(types.PartialText) onSendPressed;
@@ -230,10 +230,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.textMessageBuilder]
   final Widget Function(
-    types.TextMessage, {
-    required int messageWidth,
-    required bool showName,
-  })? textMessageBuilder;
+      types.TextMessage, {
+      required int messageWidth,
+      required bool showName,
+      })? textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -317,7 +317,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         timeFormat: widget.timeFormat,
       );
       (result[0] as List<Object>).removeWhere((element) =>
-          element is Map &&
+      element is Map &&
           element['message'].type == types.MessageType.custom &&
           element['message'].id == "null");
 
@@ -353,12 +353,12 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
           PhotoViewGallery.builder(
             builder: (BuildContext context, int index) =>
                 PhotoViewGalleryPageOptions(
-              minScale: PhotoViewComputedScale.contained,
-              imageProvider: Conditional().getProvider(_gallery[index].uri),
-            ),
+                  minScale: PhotoViewComputedScale.contained,
+                  imageProvider: Conditional().getProvider(_gallery[index].uri),
+                ),
             itemCount: _gallery.length,
             backgroundDecoration:
-                BoxDecoration(color: widget.imageGalleryBackgroundColor),
+            BoxDecoration(color: widget.imageGalleryBackgroundColor),
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
             onPageChanged: _onPageChanged,
@@ -392,9 +392,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   }
 
   Widget _imageGalleryLoadingBuilder(
-    BuildContext context,
-    ImageChunkEvent? event,
-  ) {
+      BuildContext context,
+      ImageChunkEvent? event,
+      ) {
     return Center(
       child: SizedBox(
         width: 20,
@@ -409,10 +409,10 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   }
 
   Widget _messageBuilder(
-    Object object,
-    BoxConstraints constraints,
-    BuildContext context,
-  ) {
+      Object object,
+      BoxConstraints constraints,
+      BuildContext context,
+      ) {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
@@ -432,9 +432,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
       final map = object as Map<String, Object>;
       final message = map['message']! as types.Message;
       final _messageWidth =
-          widget.showUserAvatars && message.author.id != widget.user.id
-              ? min(constraints.maxWidth * 0.72, 440).floor()
-              : min(constraints.maxWidth * 0.78, 440).floor();
+      widget.showUserAvatars && message.author.id != widget.user.id
+          ? min(constraints.maxWidth * 0.72, 440).floor()
+          : min(constraints.maxWidth * 0.78, 440).floor();
 
       return Message(
         key: ValueKey(message.id),
@@ -462,6 +462,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         },
         onPreviewDataFetched: _onPreviewDataFetched,
         roundBorder: map['nextMessageInGroup'] == true,
+        isFirstInGroup: map['isFirstInGroup'] == true,
         showAvatar: map['nextMessageInGroup'] == false,
         showName: map['showName'] == true,
         showStatus: map['showStatus'] == true,
@@ -481,7 +482,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   void _onImagePressed(types.ImageMessage message) {
     setState(() {
       _imageViewIndex = _gallery.indexWhere(
-        (element) => element.id == message.id && element.uri == message.uri,
+            (element) => element.id == message.id && element.uri == message.uri,
       );
       _isImageViewVisible = true;
       widget.onImagePressed(false);
@@ -495,9 +496,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   }
 
   void _onPreviewDataFetched(
-    types.TextMessage message,
-    types.PreviewData previewData,
-  ) {
+      types.TextMessage message,
+      types.PreviewData previewData,
+      ) {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
@@ -562,7 +563,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                             disableInput: widget.disableInput,
                             onTextFieldTap: widget.onTextFieldTap,
                             sendButtonVisibilityMode:
-                                widget.sendButtonVisibilityMode,
+                            widget.sendButtonVisibilityMode,
                             inputContent: widget.inputContent,
                             hasFocusCallBack: (bool hasFocus) {
                               WidgetsBinding.instance
@@ -640,7 +641,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                     context,
                     curve: Curves.fastOutSlowIn,
                     alignmentPolicy:
-                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                    ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
                   );
                   _chatListKey.currentState!.scrollToCounter();
                 },

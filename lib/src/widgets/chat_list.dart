@@ -53,7 +53,7 @@ class ChatListState extends State<ChatList>
     with SingleTickerProviderStateMixin {
   bool _isNextPageLoading = false;
   final GlobalKey<SliverAnimatedListState> _listKey =
-      GlobalKey<SliverAnimatedListState>();
+  GlobalKey<SliverAnimatedListState>();
   late List<Object> _oldData = List.from(widget.items);
 
   late final AnimationController _controller = AnimationController(vsync: this);
@@ -89,7 +89,7 @@ class ChatListState extends State<ChatList>
     }
 
     if (_scrollController.offset <=
-            _scrollController.position.minScrollExtent + minScrollExtent &&
+        _scrollController.position.minScrollExtent + minScrollExtent &&
         !_scrollController.position.outOfRange) {
       scrollState.onScrollLatestMessage(false);
     }
@@ -135,7 +135,7 @@ class ChatListState extends State<ChatList>
           final item = oldList[pos];
           _listKey.currentState?.removeItem(
             pos,
-            (_, animation) => _removedMessageBuilder(item, animation),
+                (_, animation) => _removedMessageBuilder(item, animation),
           );
         },
         change: (pos, payload) {},
@@ -288,14 +288,14 @@ class ChatListState extends State<ChatList>
                       width: 16,
                       child: _isNextPageLoading
                           ? CircularProgressIndicator(
-                              backgroundColor: Colors.transparent,
-                              strokeWidth: 1.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                InheritedChatTheme.of(context)
-                                    .theme
-                                    .primaryColor,
-                              ),
-                            )
+                        backgroundColor: Colors.transparent,
+                        strokeWidth: 1.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          InheritedChatTheme.of(context)
+                              .theme
+                              .primaryColor,
+                        ),
+                      )
                           : null,
                     ),
                   ),

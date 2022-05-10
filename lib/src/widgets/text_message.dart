@@ -35,7 +35,7 @@ class TextMessage extends StatelessWidget {
 
   /// See [LinkPreview.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
-      onPreviewDataFetched;
+  onPreviewDataFetched;
 
   /// Show user name for the received message. Useful for a group chat.
   final bool showName;
@@ -50,10 +50,10 @@ class TextMessage extends StatelessWidget {
   }
 
   Widget _linkPreview(
-    types.User user,
-    double width,
-    BuildContext context,
-  ) {
+      types.User user,
+      double width,
+      BuildContext context,
+      ) {
     var isOwner = user.id == message.author.id;
     if(message.metadata != null) {
       isOwner = message.metadata!['isOwner'];
@@ -63,16 +63,16 @@ class TextMessage extends StatelessWidget {
         : InheritedChatTheme.of(context).theme.receivedMessageBodyTextStyle;
     final linkDescriptionTextStyle = isOwner
         ? InheritedChatTheme.of(context)
-            .theme
-            .sentMessageLinkDescriptionTextStyle
+        .theme
+        .sentMessageLinkDescriptionTextStyle
         : InheritedChatTheme.of(context)
-            .theme
-            .receivedMessageLinkDescriptionTextStyle;
+        .theme
+        .receivedMessageLinkDescriptionTextStyle;
     final linkTitleTextStyle = isOwner
         ? InheritedChatTheme.of(context).theme.sentMessageLinkTitleTextStyle
         : InheritedChatTheme.of(context)
-            .theme
-            .receivedMessageLinkTitleTextStyle;
+        .theme
+        .receivedMessageLinkTitleTextStyle;
 
     final color = getUserAvatarNameColor(message.author,
         InheritedChatTheme.of(context).theme.userAvatarNameColors);
@@ -91,7 +91,7 @@ class TextMessage extends StatelessWidget {
       onPreviewDataFetched: _onPreviewDataFetched,
       padding: EdgeInsets.symmetric(
         horizontal:
-            InheritedChatTheme.of(context).theme.messageInsetsHorizontal,
+        InheritedChatTheme.of(context).theme.messageInsetsHorizontal,
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
@@ -102,13 +102,13 @@ class TextMessage extends StatelessWidget {
   }
 
   Widget _textWidgetBuilder(
-    types.User user,
-    BuildContext context,
-    bool enlargeEmojis,
-  ) {
+      types.User user,
+      BuildContext context,
+      bool enlargeEmojis,
+      ) {
     final theme = InheritedChatTheme.of(context).theme;
     final color =
-        getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
+    getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
     final name = getUserName(message.author);
     var isOwner = user.id == message.author.id;
     if(message.metadata != null) {
@@ -131,11 +131,11 @@ class TextMessage extends StatelessWidget {
           message.text,
           style: isOwner
               ? enlargeEmojis
-                  ? theme.sentEmojiMessageTextStyle
-                  : theme.sentMessageBodyTextStyle
+              ? theme.sentEmojiMessageTextStyle
+              : theme.sentMessageBodyTextStyle
               : enlargeEmojis
-                  ? theme.receivedEmojiMessageTextStyle
-                  : theme.receivedMessageBodyTextStyle,
+              ? theme.receivedEmojiMessageTextStyle
+              : theme.receivedMessageBodyTextStyle,
           textWidthBasis: TextWidthBasis.longestLine,
         ),
       ],
