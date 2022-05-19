@@ -113,6 +113,17 @@ class _InputState extends State<Input> {
   }
 
   @override
+  void didUpdateWidget(covariant Input oldWidget) {
+    if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
+      _sendButtonVisible = _textController.text.trim() != '';
+      _textController.addListener(_handleTextControllerChange);
+    } else {
+      _sendButtonVisible = true;
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
@@ -177,9 +188,9 @@ class _InputState extends State<Input> {
         shortcuts: {
           LogicalKeySet(LogicalKeyboardKey.enter): const SendMessageIntent(),
           LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.alt):
-              const NewLineIntent(),
+          const NewLineIntent(),
           LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.shift):
-              const NewLineIntent(),
+          const NewLineIntent(),
         },
         child: Actions(
           actions: {
@@ -241,11 +252,11 @@ class _InputState extends State<Input> {
                                             color: isEmojiVisible
                                                 ? Colors.grey
                                                 : const Color(0xff2C56EA)
-                                                    .withOpacity(0.75),
+                                                .withOpacity(0.75),
                                           ),
                                           onPressed: () {
                                             isEmojiVisibleNotifier.value =
-                                                !isEmojiVisibleNotifier.value;
+                                            !isEmojiVisibleNotifier.value;
                                           },
                                         );
                                       },
@@ -256,11 +267,11 @@ class _InputState extends State<Input> {
                                       .theme
                                       .inputTextStyle
                                       .copyWith(
-                                        color: InheritedChatTheme.of(context)
-                                            .theme
-                                            .inputTextColor
-                                            .withOpacity(0.5),
-                                      ),
+                                    color: InheritedChatTheme.of(context)
+                                        .theme
+                                        .inputTextColor
+                                        .withOpacity(0.5),
+                                  ),
                                   hintText: InheritedL10n.of(context)
                                       .l10n
                                       .inputPlaceholder,
@@ -284,12 +295,12 @@ class _InputState extends State<Input> {
                                     .theme
                                     .inputTextStyle
                                     .copyWith(
-                                      color: InheritedChatTheme.of(context)
-                                          .theme
-                                          .inputTextColor,
-                                    ),
+                                  color: InheritedChatTheme.of(context)
+                                      .theme
+                                      .inputTextColor,
+                                ),
                                 textCapitalization:
-                                    TextCapitalization.sentences,
+                                TextCapitalization.sentences,
                               ),
                             ),
                           ),
