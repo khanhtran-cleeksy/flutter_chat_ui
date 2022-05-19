@@ -14,7 +14,6 @@ import '../models/preview_image.dart';
 import '../models/send_button_visibility_mode.dart';
 import '../util.dart';
 import 'chat_list.dart';
-import 'inherited_action_sheet.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_l10n.dart';
 import 'inherited_scroll_message.dart';
@@ -79,6 +78,7 @@ class Chat extends StatefulWidget {
     required this.onImagePressed,
     this.channelTypeWidget,
     required this.onTapAddAttachment,
+    required this.buildAssignerAvatar,
   }) : super(key: key);
 
   final List<Widget> prefixInput;
@@ -95,6 +95,7 @@ class Chat extends StatefulWidget {
   final Widget? customBottomWidget;
 
   final Widget Function(types.Message)? buildMessageAvatar;
+  final Widget Function(types.Message) buildAssignerAvatar;
 
   final List<Widget> inputHeader;
 
@@ -447,6 +448,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         fileMessageBuilder: widget.fileMessageBuilder,
         hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
         imageMessageBuilder: widget.imageMessageBuilder,
+        buildAssignerAvatar: widget.buildAssignerAvatar,
         buildMessageAvatar: widget.buildMessageAvatar,
         message: message,
         messageWidth: _messageWidth,

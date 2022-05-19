@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import '../models/emoji_enlargement_behavior.dart';
@@ -39,6 +38,7 @@ class Message extends StatelessWidget {
     required this.showUserAvatars,
     this.textMessageBuilder,
     required this.usePreviewData,
+    required this.buildAssignerAvatar,
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -63,6 +63,9 @@ class Message extends StatelessWidget {
 
   /// Build message avatar
   final Widget Function(types.Message)? buildMessageAvatar;
+
+  /// Build message assigner avatar
+  final Widget Function(types.Message) buildAssignerAvatar;
 
   /// Build a custom text message inside predefined bubble
   final Widget Function(
@@ -208,22 +211,7 @@ class Message extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(64),
-                      child: CachedNetworkImage(
-                        imageUrl: message.author.imageUrl ?? '',
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.center,
-                        fadeInDuration: const Duration(milliseconds: 200),
-                        fadeOutDuration: const Duration(milliseconds: 50),
-                        placeholderFadeInDuration:
-                        const Duration(milliseconds: 0),
-                        errorWidget: (_, __, ___) =>
-                        const SizedBox.shrink(),
-                      ),
-                    ),
+                    buildAssignerAvatar(message)
                   ],
                 ),
               ),

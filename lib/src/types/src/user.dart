@@ -8,7 +8,7 @@ part 'user.g.dart';
 enum Role { admin, agent, moderator, user }
 
 /// A class that represents user.
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 @immutable
 class User extends Equatable {
   /// Creates a user.
@@ -17,6 +17,7 @@ class User extends Equatable {
     this.firstName,
     required this.id,
     this.imageUrl,
+    this.icon,
     this.lastName,
     this.lastSeen,
     this.metadata,
@@ -39,6 +40,7 @@ class User extends Equatable {
   User copyWith({
     String? firstName,
     String? imageUrl,
+    String? icon,
     String? lastName,
     int? lastSeen,
     Map<String, dynamic>? metadata,
@@ -49,14 +51,15 @@ class User extends Equatable {
       firstName: firstName,
       id: id,
       imageUrl: imageUrl,
+      icon: icon,
       lastName: lastName,
       lastSeen: lastSeen,
       metadata: metadata == null
           ? null
           : {
-              ...this.metadata ?? {},
-              ...metadata,
-            },
+        ...this.metadata ?? {},
+        ...metadata,
+      },
       role: role,
       updatedAt: updatedAt,
     );
@@ -64,11 +67,13 @@ class User extends Equatable {
 
   /// Equatable props
   @override
-  List<Object?> get props => [
+  List<Object?> get props =>
+      [
         createdAt,
         firstName,
         id,
         imageUrl,
+        icon,
         lastName,
         lastSeen,
         metadata,
@@ -87,6 +92,9 @@ class User extends Equatable {
 
   /// Remote image URL representing user's avatar
   final String? imageUrl;
+
+  /// Icon from system
+  final String? icon;
 
   /// Last name of the user
   final String? lastName;
