@@ -75,6 +75,7 @@ class Chat extends StatefulWidget {
     this.usePreviewData = true,
     required this.user,
     required this.inputContent,
+    required this.inputKey,
     required this.onImagePressed,
     this.channelTypeWidget,
     required this.onTapAddAttachment,
@@ -259,6 +260,7 @@ class Chat extends StatefulWidget {
 
   // To copy text into InputField
   final String inputContent;
+  final String inputKey;
 
   final Function(bool) onImagePressed;
 
@@ -557,7 +559,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                       widget.customBottomWidget ??
                           Input(
                             autofocus: widget.autofocus,
-                            key: Key(widget.inputContent),
+                            key: Key(widget.inputKey),
                             isAttachmentUploading: widget.isAttachmentUploading,
                             prefixInput: widget.prefixInput,
                             onSendPressed: widget.onSendPressed,
