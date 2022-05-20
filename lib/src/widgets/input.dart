@@ -29,12 +29,13 @@ class Input extends StatefulWidget {
     this.isEmojiVisible = false,
     required this.onSendPressed,
     this.autofocus = false,
+    this.showFooter = false,
     this.onTextChanged,
     this.onTextFieldTap,
     required this.sendButtonVisibilityMode,
     required this.inputContent,
     required this.hasFocusCallBack,
-    required this.onTapAttachment,
+    required this.onExpanded,
     required this.onTapAddAttachment,
   }) : super(key: key);
 
@@ -42,6 +43,7 @@ class Input extends StatefulWidget {
 
   final bool isEmojiVisible;
   final bool autofocus;
+  final bool showFooter;
 
   final List<Widget> prefixInput;
 
@@ -70,7 +72,7 @@ class Input extends StatefulWidget {
 
   final String inputContent;
 
-  final Function() onTapAttachment;
+  final Function() onExpanded;
 
   final Function() onTapAddAttachment;
 
@@ -85,15 +87,19 @@ class _InputState extends State<Input> {
   final _textController = TextEditingController();
   ValueNotifier<int> lengthTextNotifier = ValueNotifier(0);
   ValueNotifier<bool> isEmojiVisibleNotifier = ValueNotifier(true);
-  ValueNotifier<bool> hasFocusNotifier = ValueNotifier(false);
+  bool hasFocusNotifier = false;
+  bool hasInput = false;
   static const LIMIT_CHARACTER = 2000;
   static const START_SHOW_LIMIT = 100;
 
   @override
   void initState() {
     super.initState();
+    hasInput = widget.inputContent.isNotEmpty;
 
-    if (widget.inputContent.trim().isNotEmpty) {
+    if (widget.inputContent
+        .trim()
+        .isNotEmpty) {
       _textController.clear();
       _textController.text = widget.inputContent;
     }
@@ -107,13 +113,18 @@ class _InputState extends State<Input> {
 
     _inputFocusNode.addListener(() {
       final hasFocusInput = _inputFocusNode.hasFocus;
-      hasFocusNotifier.value = hasFocusInput;
+      setState(() {
+        hasFocusNotifier = hasFocusInput;
+      });
       widget.hasFocusCallBack(hasFocusInput);
     });
   }
 
   @override
   void didUpdateWidget(covariant Input oldWidget) {
+    setState(() {
+      hasInput = widget.inputContent.isNotEmpty;
+    });
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible = _textController.text.trim() != '';
       _textController.addListener(_handleTextControllerChange);
@@ -143,7 +154,9 @@ class _InputState extends State<Input> {
 
   void _handleTextControllerChange() {
     setState(() {
-      _sendButtonVisible = _textController.text.trim().isNotEmpty;
+      _sendButtonVisible = _textController.text
+          .trim()
+          .isNotEmpty;
     });
   }
 
@@ -157,21 +170,20 @@ class _InputState extends State<Input> {
           backgroundColor: Colors.transparent,
           strokeWidth: 1.5,
           valueColor: AlwaysStoppedAnimation<Color>(
-            InheritedChatTheme.of(context).theme.inputTextColor,
+            InheritedChatTheme
+                .of(context)
+                .theme
+                .inputTextColor,
           ),
         ),
       );
     } else {
-      return ValueListenableBuilder(
-        valueListenable: hasFocusNotifier,
-        builder: (_, bool hasFocus, ___) {
-          return AttachmentButton(
-            prefixInput: widget.prefixInput,
-            onTapAttachment: widget.onTapAttachment,
-            hasFocusInput: hasFocus || _sendButtonVisible,
-            onTapAddAttachment: widget.onTapAddAttachment,
-          );
-        },
+      return AttachmentButton(
+        prefixInput: widget.prefixInput,
+        onExpanded: widget.onExpanded,
+        showAddButton: !widget.showFooter,
+        showActionIcons: !widget.showFooter && !hasFocusNotifier &&
+            !hasInput,
       );
     }
   }
@@ -210,7 +222,10 @@ class _InputState extends State<Input> {
             ),
           },
           child: Padding(
-            padding: InheritedChatTheme.of(context).theme.inputPadding,
+            padding: InheritedChatTheme
+                .of(context)
+                .theme
+                .inputPadding,
             child: Column(
               children: [
                 Padding(
@@ -231,7 +246,8 @@ class _InputState extends State<Input> {
                           Expanded(
                             child: Material(
                               color: Colors.white,
-                              borderRadius: InheritedChatTheme.of(context)
+                              borderRadius: InheritedChatTheme
+                                  .of(context)
                                   .theme
                                   .inputBorderRadius,
                               child: TextField(
@@ -263,16 +279,19 @@ class _InputState extends State<Input> {
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.all(12.0),
-                                  hintStyle: InheritedChatTheme.of(context)
+                                  hintStyle: InheritedChatTheme
+                                      .of(context)
                                       .theme
                                       .inputTextStyle
                                       .copyWith(
-                                    color: InheritedChatTheme.of(context)
+                                    color: InheritedChatTheme
+                                        .of(context)
                                         .theme
                                         .inputTextColor
                                         .withOpacity(0.5),
                                   ),
-                                  hintText: InheritedL10n.of(context)
+                                  hintText: InheritedL10n
+                                      .of(context)
                                       .l10n
                                       .inputPlaceholder,
                                 ),
@@ -291,11 +310,13 @@ class _InputState extends State<Input> {
                                   }
                                 },
                                 onTap: widget.onTextFieldTap,
-                                style: InheritedChatTheme.of(context)
+                                style: InheritedChatTheme
+                                    .of(context)
                                     .theme
                                     .inputTextStyle
                                     .copyWith(
-                                  color: InheritedChatTheme.of(context)
+                                  color: InheritedChatTheme
+                                      .of(context)
                                       .theme
                                       .inputTextColor,
                                 ),
@@ -317,7 +338,11 @@ class _InputState extends State<Input> {
                                       alignment: Alignment.centerRight,
                                       child: FittedBox(
                                         child: Text(
-                                          '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
+                                          '${NumberFormat.decimalPattern()
+                                              .format(
+                                              lengthText)} / ${NumberFormat
+                                              .decimalPattern().format(
+                                              LIMIT_CHARACTER)}',
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                             fontSize: 10,
