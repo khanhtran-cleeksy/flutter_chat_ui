@@ -2,11 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
-import '../conditional/conditional.dart';
 import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../models/message_spacer.dart';
@@ -86,10 +83,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.bubbleBuilder]
   final Widget Function(
-      Widget child, {
-      required types.Message message,
-      required bool nextMessageInGroup,
-      })? bubbleBuilder;
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
@@ -113,7 +110,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.customMessageBuilder]
   final Widget Function(types.CustomMessage, {required int messageWidth})?
-  customMessageBuilder;
+      customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -151,7 +148,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.fileMessageBuilder]
   final Widget Function(types.FileMessage, {required int messageWidth})?
-  fileMessageBuilder;
+      fileMessageBuilder;
 
   /// Time (in ms) between two messages when we will visually group them.
   /// Default value is 1 minute, 60000 ms. When time between two messages
@@ -163,7 +160,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.imageMessageBuilder]
   final Widget Function(types.ImageMessage, {required int messageWidth})?
-  imageMessageBuilder;
+      imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
@@ -205,7 +202,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
-  onPreviewDataFetched;
+      onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
   final void Function(types.PartialText) onSendPressed;
@@ -235,10 +232,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.textMessageBuilder]
   final Widget Function(
-      types.TextMessage, {
-      required int messageWidth,
-      required bool showName,
-      })? textMessageBuilder;
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -262,7 +259,7 @@ class Chat extends StatefulWidget {
   final String inputContent;
   final String inputKey;
 
-  final Function(bool) onImagePressed;
+  final Function(List<String> urls, int currentIndex) onImagePressed;
 
   /// Selection channel to send message
   final Widget? channelTypeWidget;
@@ -277,8 +274,6 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> with TickerProviderStateMixin {
   List<Object> _chatMessages = [];
   List<PreviewImage> _gallery = [];
-  int _imageViewIndex = 0;
-  bool _isImageViewVisible = false;
 
   final GlobalKey<ChatListState> _chatListKey = GlobalKey();
 
@@ -301,10 +296,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
 
   @override
   void didChangeDependencies() {
-    bottomPadding = MediaQuery
-        .of(context)
-        .padding
-        .bottom;
+    bottomPadding = MediaQuery.of(context).padding.bottom;
     super.didChangeDependencies();
   }
 
@@ -325,7 +317,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         timeFormat: widget.timeFormat,
       );
       (result[0] as List<Object>).removeWhere((element) =>
-      element is Map &&
+          element is Map &&
           element['message'].type == types.MessageType.custom &&
           element['message'].id == "null");
 
@@ -350,73 +342,11 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         );
   }
 
-  Widget _imageGalleryBuilder() {
-    return Dismissible(
-      key: const Key('photo_view_gallery'),
-      direction: DismissDirection.down,
-      resizeDuration: const Duration(microseconds: 100),
-      onDismissed: (direction) => _onCloseGalleryPressed(),
-      child: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  minScale: PhotoViewComputedScale.contained,
-                  imageProvider: Conditional().getProvider(_gallery[index].uri),
-                ),
-            itemCount: _gallery.length,
-            backgroundDecoration:
-            BoxDecoration(color: widget.imageGalleryBackgroundColor),
-            loadingBuilder: (context, event) =>
-                _imageGalleryLoadingBuilder(context, event),
-            onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: _imageViewIndex),
-            scrollPhysics: const ClampingScrollPhysics(),
-          ),
-          Positioned(
-            right: 10,
-            top: 10,
-            child: SafeArea(
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xffF3F4F7)),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  onPressed: _onCloseGalleryPressed,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _imageGalleryLoadingBuilder(BuildContext context,
-      ImageChunkEvent? event,) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
-  }
-
-  Widget _messageBuilder(Object object,
-      BoxConstraints constraints,
-      BuildContext context,) {
+  Widget _messageBuilder(
+    Object object,
+    BoxConstraints constraints,
+    BuildContext context,
+  ) {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
@@ -436,9 +366,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
       final map = object as Map<String, Object>;
       final message = map['message']! as types.Message;
       final _messageWidth =
-      widget.showUserAvatars && message.author.id != widget.user.id
-          ? min(constraints.maxWidth * 0.72, 440).floor()
-          : min(constraints.maxWidth * 0.78, 440).floor();
+          widget.showUserAvatars && message.author.id != widget.user.id
+              ? min(constraints.maxWidth * 0.72, 440).floor()
+              : min(constraints.maxWidth * 0.78, 440).floor();
 
       return Message(
         key: ValueKey(message.id),
@@ -477,31 +407,17 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
     }
   }
 
-  void _onCloseGalleryPressed() {
-    setState(() {
-      _isImageViewVisible = false;
-      widget.onImagePressed(true);
-    });
-  }
-
   void _onImagePressed(types.ImageMessage message) {
-    setState(() {
-      _imageViewIndex = _gallery.indexWhere(
-            (element) => element.id == message.id && element.uri == message.uri,
-      );
-      _isImageViewVisible = true;
-      widget.onImagePressed(false);
-    });
+    int _imageViewIndex = _gallery.indexWhere(
+      (element) => element.id == message.id && element.uri == message.uri,
+    );
+    widget.onImagePressed(_gallery.map((e) => e.uri).toList(), _imageViewIndex);
   }
 
-  void _onPageChanged(int index) {
-    setState(() {
-      _imageViewIndex = index;
-    });
-  }
-
-  void _onPreviewDataFetched(types.TextMessage message,
-      types.PreviewData previewData,) {
+  void _onPreviewDataFetched(
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
@@ -528,63 +444,58 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
           l10n: widget.l10n,
           child: InheritedScrollMessage(
             onScrollLatestMessage: onScrollLatestMessage,
-            child: Stack(
-              children: [
-                Container(
-                  color: widget.theme.backgroundColor,
-                  child: Column(
-                    children: [
-                      Flexible(
-                        child: Stack(
-                          children: [
-                            _buildChatList(),
-                            _buildScrollLatestMessage(context),
-                          ],
-                        ),
-                      ),
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: Color(0xffE6E9F0),
-                      ),
-                      if (isValidInputHeader) ...widget.inputHeader,
-                      widget.customBottomWidget ??
-                          Input(
-                            autofocus: widget.autofocus,
-                            key: Key(widget.inputKey),
-                            isAttachmentUploading: widget.isAttachmentUploading,
-                            prefixInput: widget.prefixInput,
-                            onSendPressed: widget.onSendPressed,
-                            onTextChanged: widget.onTextChanged,
-                            isEmojiVisible: widget.isEmojiVisible,
-                            disableInput: widget.disableInput,
-                            onTextFieldTap: widget.onTextFieldTap,
-                            sendButtonVisibilityMode:
-                            widget.sendButtonVisibilityMode,
-                            inputContent: widget.inputContent,
-                            showFooter: showFooter,
-                            hasFocusCallBack: (bool hasFocus) {
-                              WidgetsBinding.instance
-                                  ?.addPostFrameCallback((timeStamp) {
-                                if (hasFocus)
-                                  setState(() {
-                                    showFooter = false;
-                                  });
-                              });
-                            },
-                            onExpanded: () {
-                              setState(() {
-                                showFooter = !showFooter;
-                              });
-                            },
-                            onTapAddAttachment: widget.onTapAddAttachment,
-                          ),
-                      _buildInputFooter(),
-                    ],
+            child: Container(
+              color: widget.theme.backgroundColor,
+              child: Column(
+                children: [
+                  Flexible(
+                    child: Stack(
+                      children: [
+                        _buildChatList(),
+                        _buildScrollLatestMessage(context),
+                      ],
+                    ),
                   ),
-                ),
-                if (_isImageViewVisible) _imageGalleryBuilder(),
-              ],
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xffE6E9F0),
+                  ),
+                  if (isValidInputHeader) ...widget.inputHeader,
+                  widget.customBottomWidget ??
+                      Input(
+                        autofocus: widget.autofocus,
+                        key: Key(widget.inputKey),
+                        isAttachmentUploading: widget.isAttachmentUploading,
+                        prefixInput: widget.prefixInput,
+                        onSendPressed: widget.onSendPressed,
+                        onTextChanged: widget.onTextChanged,
+                        isEmojiVisible: widget.isEmojiVisible,
+                        disableInput: widget.disableInput,
+                        onTextFieldTap: widget.onTextFieldTap,
+                        sendButtonVisibilityMode:
+                            widget.sendButtonVisibilityMode,
+                        inputContent: widget.inputContent,
+                        showFooter: showFooter,
+                        hasFocusCallBack: (bool hasFocus) {
+                          WidgetsBinding.instance
+                              ?.addPostFrameCallback((timeStamp) {
+                            if (hasFocus)
+                              setState(() {
+                                showFooter = false;
+                              });
+                          });
+                        },
+                        onExpanded: () {
+                          setState(() {
+                            showFooter = !showFooter;
+                          });
+                        },
+                        onTapAddAttachment: widget.onTapAddAttachment,
+                      ),
+                  _buildInputFooter(),
+                ],
+              ),
             ),
           ),
         ),
@@ -595,36 +506,33 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   Widget _buildChatList() {
     return widget.messages.isEmpty
         ? SizedBox.expand(
-      child: _emptyStateBuilder(),
-    )
+            child: _emptyStateBuilder(),
+          )
         : GestureDetector(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-        widget.onBackgroundTap?.call();
-      },
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) =>
-            ChatList(
-              key: _chatListKey,
-              isLastPage: widget.isLastPage,
-              itemBuilder: (item, index) =>
-                  _messageBuilder(item, constraints, context),
-              items: _chatMessages,
-              onEndReached: widget.onEndReached,
-              onEndReachedThreshold: widget.onEndReachedThreshold,
-              scrollPhysics: widget.scrollPhysics,
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              widget.onBackgroundTap?.call();
+            },
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) =>
+                  ChatList(
+                key: _chatListKey,
+                isLastPage: widget.isLastPage,
+                itemBuilder: (item, index) =>
+                    _messageBuilder(item, constraints, context),
+                items: _chatMessages,
+                onEndReached: widget.onEndReached,
+                onEndReachedThreshold: widget.onEndReachedThreshold,
+                scrollPhysics: widget.scrollPhysics,
+              ),
             ),
-      ),
-    );
+          );
   }
 
   Positioned _buildScrollLatestMessage(BuildContext context) {
     return Positioned(
       bottom: 15,
-      left: MediaQuery
-          .of(context)
-          .size
-          .width / 2 - 45 / 2,
+      left: MediaQuery.of(context).size.width / 2 - 45 / 2,
       child: ValueListenableBuilder(
         valueListenable: _isLatestMessage,
         builder: (_, bool isLatest, __) {
@@ -646,7 +554,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                     context,
                     curve: Curves.fastOutSlowIn,
                     alignmentPolicy:
-                    ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
                   );
                   _chatListKey.currentState!.scrollToCounter();
                 },
