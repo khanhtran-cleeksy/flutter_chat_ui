@@ -75,7 +75,6 @@ class Chat extends StatefulWidget {
     required this.inputKey,
     required this.onImagePressed,
     this.channelTypeWidget,
-    required this.onTapAddAttachment,
     required this.buildAssignerAvatar,
   }) : super(key: key);
 
@@ -264,7 +263,6 @@ class Chat extends StatefulWidget {
   /// Selection channel to send message
   final Widget? channelTypeWidget;
 
-  final Function() onTapAddAttachment;
 
   @override
   _ChatState createState() => _ChatState();
@@ -491,7 +489,6 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                             showFooter = !showFooter;
                           });
                         },
-                        onTapAddAttachment: widget.onTapAddAttachment,
                       ),
                   _buildInputFooter(),
                 ],

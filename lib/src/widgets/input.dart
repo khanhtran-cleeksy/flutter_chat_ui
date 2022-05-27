@@ -36,7 +36,6 @@ class Input extends StatefulWidget {
     required this.inputContent,
     required this.hasFocusCallBack,
     required this.onExpanded,
-    required this.onTapAddAttachment,
   }) : super(key: key);
 
   final bool? disableInput;
@@ -73,8 +72,6 @@ class Input extends StatefulWidget {
   final String inputContent;
 
   final Function() onExpanded;
-
-  final Function() onTapAddAttachment;
 
   @override
   _InputState createState() => _InputState();
@@ -405,11 +402,11 @@ class _InputState extends State<Input> {
                             progressIndicatorColor: Color(0xff2C56EA),
                             showRecentsTab: true,
                             recentsLimit: 28,
-                            noRecentsText: "No Recents",
-                            noRecentsStyle: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black26,
-                            ),
+                            // noRecentsText: "No Recents",
+                            // noRecentsStyle: TextStyle(
+                            //   fontSize: 20,
+                            //   color: Colors.black26,
+                            // ),
                             tabIndicatorAnimDuration: kTabScrollDuration,
                             categoryIcons: CategoryIcons(),
                             buttonMode: ButtonMode.MATERIAL,
