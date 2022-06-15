@@ -23,8 +23,6 @@ class AttachmentButton extends StatefulWidget {
 }
 
 class _AttachmentButtonState extends State<AttachmentButton> {
-
-
   @override
   Widget build(BuildContext context) {
     return IntrinsicWidth(
@@ -37,21 +35,21 @@ class _AttachmentButtonState extends State<AttachmentButton> {
               padding: EdgeInsets.zero,
               icon: widget.showAddButton
                   ? Image.asset(
-                'assets/icon_add.png',
-                color: const Color(0xff282E3E),
-                package: 'flutter_chat_ui',
-              )
+                      'assets/icon_add.png',
+                      height: 20,
+                      width: 20,
+                    )
                   : const Icon(
-                CupertinoIcons.chevron_down,
-                color: Color(0xff282E3E),
-              ),
+                      CupertinoIcons.chevron_down,
+                      color: Color(0xff282E3E),
+                      size: 20,
+                    ),
               onPressed: () {
                 FocusScope.of(context).unfocus();
                 widget.onExpanded();
               },
             ),
-            if (widget.showActionIcons) ...widget
-                .prefixInput,
+            if (widget.showActionIcons) ...widget.prefixInput,
           ],
         ),
       ),
