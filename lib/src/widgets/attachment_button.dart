@@ -36,6 +36,7 @@ class _AttachmentButtonState extends State<AttachmentButton> {
               icon: widget.showAddButton
                   ? Image.asset(
                       'assets/icon_add.png',
+                      package: 'flutter_chat_ui',
                       height: 20,
                       width: 20,
                     )
