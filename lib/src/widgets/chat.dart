@@ -535,7 +535,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   Positioned _buildScrollLatestMessage(BuildContext context) {
     return Positioned(
       bottom: 15,
-      right: 15,
+      left: MediaQuery.of(context).size.width / 2 - 45 / 2,
       child: ValueListenableBuilder(
         valueListenable: _isLatestMessage,
         builder: (_, bool isLatest, __) {
@@ -544,8 +544,8 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
             child: Stack(
               children: [
                 Container(
-                  height: 45,
-                  width: 45,
+                  height: 40,
+                  width: 40,
                   alignment: Alignment.center,
                   child: RaisedButton(
                     clipBehavior: Clip.hardEdge,
@@ -563,9 +563,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                       );
                       _chatListKey.currentState!.scrollToCounter();
                     },
-                    child: const Icon(
+                    child: Icon(
                       Icons.arrow_downward,
-                      color: Colors.blue,
+                      color: Colors.blue.shade700,
                       size: 20,
                     ),
                   ),
