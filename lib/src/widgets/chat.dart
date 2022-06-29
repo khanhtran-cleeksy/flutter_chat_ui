@@ -76,6 +76,7 @@ class Chat extends StatefulWidget {
     required this.onImagePressed,
     required this.unreadCount,
     required this.onScrollButtonVisible,
+    required this.onBeforeScrollToEnd,
     this.channelTypeWidget,
     required this.buildAssignerAvatar,
   }) : super(key: key);
@@ -101,6 +102,7 @@ class Chat extends StatefulWidget {
   final Widget? inputFooter;
   final int unreadCount;
   final Function(bool visible) onScrollButtonVisible;
+  final Function() onBeforeScrollToEnd;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use this to return an arbitrary
@@ -554,7 +556,11 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(50.0),
                     ),
                     color: Colors.white,
-                    onPressed: () {
+                    onPressed: () async {
+                      if(widget.unreadCount > 0){
+                        widget.onBeforeScrollToEnd();
+                        await Future.delayed(Duration(milliseconds: 100));
+                      }
                       Scrollable.ensureVisible(
                         context,
                         curve: Curves.fastOutSlowIn,
