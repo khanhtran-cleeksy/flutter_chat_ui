@@ -559,14 +559,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                     onPressed: () async {
                       if(widget.unreadCount > 0){
                         widget.onBeforeScrollToEnd();
-                        await Future.delayed(Duration(milliseconds: 100));
                       }
-                      Scrollable.ensureVisible(
-                        context,
-                        curve: Curves.fastOutSlowIn,
-                        alignmentPolicy:
-                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-                      );
                       _chatListKey.currentState!.scrollToCounter();
                     },
                     child: Icon(

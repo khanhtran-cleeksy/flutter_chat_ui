@@ -73,7 +73,10 @@ class ChatListState extends State<ChatList>
     _scrollController = AutoScrollController(
       keepScrollOffset: true,
       viewportBoundaryGetter: () =>
-          Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+          Rect.fromLTRB(0, 0, 0, MediaQuery
+              .of(context)
+              .padding
+              .bottom),
       axis: Axis.vertical,
     );
     _scrollController.addListener(_scrollListener);
@@ -186,7 +189,10 @@ class ChatListState extends State<ChatList>
         // Compare items to fire only on newly added messages
         if (oldMessage != message) {
           // Run only for sent message
-          if (message.author.id == InheritedUser.of(context).user.id) {
+          if (message.author.id == InheritedUser
+              .of(context)
+              .user
+              .id) {
             // Delay to give some time for Flutter to calculate new
             // size after new message was added
             Future.delayed(const Duration(milliseconds: 100), () {
@@ -206,11 +212,8 @@ class ChatListState extends State<ChatList>
     }
   }
 
-  Future scrollToCounter() async {
-    await _scrollController.scrollToIndex(
-      latestMessageIndex,
-      preferPosition: AutoScrollPosition.begin,
-    );
+  void scrollToCounter() {
+    _scrollController.jumpTo(0);
     _scrollController.highlight(1);
   }
 
@@ -291,7 +294,8 @@ class ChatListState extends State<ChatList>
                         backgroundColor: Colors.transparent,
                         strokeWidth: 1.5,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          InheritedChatTheme.of(context)
+                          InheritedChatTheme
+                              .of(context)
                               .theme
                               .primaryColor,
                         ),
