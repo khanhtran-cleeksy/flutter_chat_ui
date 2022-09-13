@@ -85,10 +85,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.bubbleBuilder]
   final Widget Function(
-      Widget child, {
-      required types.Message message,
-      required bool nextMessageInGroup,
-      })? bubbleBuilder;
+    Widget child, {
+    required types.Message message,
+    required bool nextMessageInGroup,
+  })? bubbleBuilder;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
@@ -115,7 +115,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.customMessageBuilder]
   final Widget Function(types.CustomMessage, {required int messageWidth})?
-  customMessageBuilder;
+      customMessageBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -153,7 +153,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.fileMessageBuilder]
   final Widget Function(types.FileMessage, {required int messageWidth})?
-  fileMessageBuilder;
+      fileMessageBuilder;
 
   /// Time (in ms) between two messages when we will visually group them.
   /// Default value is 1 minute, 60000 ms. When time between two messages
@@ -165,7 +165,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.imageMessageBuilder]
   final Widget Function(types.ImageMessage, {required int messageWidth})?
-  imageMessageBuilder;
+      imageMessageBuilder;
 
   /// See [Input.isAttachmentUploading]
   final bool? isAttachmentUploading;
@@ -207,7 +207,7 @@ class Chat extends StatefulWidget {
 
   /// See [Message.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
-  onPreviewDataFetched;
+      onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
   final void Function(types.PartialText) onSendPressed;
@@ -237,10 +237,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.textMessageBuilder]
   final Widget Function(
-      types.TextMessage, {
-      required int messageWidth,
-      required bool showName,
-      })? textMessageBuilder;
+    types.TextMessage, {
+    required int messageWidth,
+    required bool showName,
+  })? textMessageBuilder;
 
   /// Chat theme. Extend [ChatTheme] class to create your own theme or use
   /// existing one, like the [DefaultChatTheme]. You can customize only certain
@@ -268,7 +268,6 @@ class Chat extends StatefulWidget {
 
   /// Selection channel to send message
   final Widget? channelTypeWidget;
-
 
   @override
   _ChatState createState() => _ChatState();
@@ -303,10 +302,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
 
   @override
   void didChangeDependencies() {
-    bottomPadding = MediaQuery
-        .of(context)
-        .padding
-        .bottom;
+    bottomPadding = MediaQuery.of(context).padding.bottom;
     super.didChangeDependencies();
   }
 
@@ -327,7 +323,7 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         timeFormat: widget.timeFormat,
       );
       (result[0] as List<Object>).removeWhere((element) =>
-      element is Map &&
+          element is Map &&
           element['message'].type == types.MessageType.custom &&
           element['message'].id == "null");
 
@@ -352,9 +348,11 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
         );
   }
 
-  Widget _messageBuilder(Object object,
-      BoxConstraints constraints,
-      BuildContext context,) {
+  Widget _messageBuilder(
+    Object object,
+    BoxConstraints constraints,
+    BuildContext context,
+  ) {
     if (object is DateHeader) {
       return Container(
         alignment: Alignment.center,
@@ -374,9 +372,9 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
       final map = object as Map<String, Object>;
       final message = map['message']! as types.Message;
       final _messageWidth =
-      widget.showUserAvatars && message.author.id != widget.user.id
-          ? min(constraints.maxWidth * 0.72, 440).floor()
-          : min(constraints.maxWidth * 0.78, 440).floor();
+          widget.showUserAvatars && message.author.id != widget.user.id
+              ? min(constraints.maxWidth * 0.72, 440).floor()
+              : min(constraints.maxWidth * 0.78, 440).floor();
 
       return Message(
         key: ValueKey(message.id),
@@ -417,13 +415,15 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
 
   void _onImagePressed(types.ImageMessage message) {
     int _imageViewIndex = _gallery.indexWhere(
-          (element) => element.id == message.id && element.uri == message.uri,
+      (element) => element.id == message.id && element.uri == message.uri,
     );
     widget.onImagePressed(_gallery.map((e) => e.uri).toList(), _imageViewIndex);
   }
 
-  void _onPreviewDataFetched(types.TextMessage message,
-      types.PreviewData previewData,) {
+  void _onPreviewDataFetched(
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
@@ -480,16 +480,17 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                         disableInput: widget.disableInput,
                         onTextFieldTap: widget.onTextFieldTap,
                         sendButtonVisibilityMode:
-                        widget.sendButtonVisibilityMode,
+                            widget.sendButtonVisibilityMode,
                         inputContent: widget.inputContent,
                         showFooter: showFooter,
                         hasFocusCallBack: (bool hasFocus) {
                           WidgetsBinding.instance
-                              ?.addPostFrameCallback((timeStamp) {
-                            if (hasFocus)
+                              .addPostFrameCallback((timeStamp) {
+                            if (hasFocus) {
                               setState(() {
                                 showFooter = false;
                               });
+                            }
                           });
                         },
                         onExpanded: () {
@@ -511,27 +512,27 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
   Widget _buildChatList() {
     return widget.messages.isEmpty
         ? SizedBox.expand(
-      child: _emptyStateBuilder(),
-    )
+            child: _emptyStateBuilder(),
+          )
         : GestureDetector(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-        widget.onBackgroundTap?.call();
-      },
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) =>
-            ChatList(
-              key: _chatListKey,
-              isLastPage: widget.isLastPage,
-              itemBuilder: (item, index) =>
-                  _messageBuilder(item, constraints, context),
-              items: _chatMessages,
-              onEndReached: widget.onEndReached,
-              onEndReachedThreshold: widget.onEndReachedThreshold,
-              scrollPhysics: widget.scrollPhysics,
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              widget.onBackgroundTap?.call();
+            },
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) =>
+                  ChatList(
+                key: _chatListKey,
+                isLastPage: widget.isLastPage,
+                itemBuilder: (item, index) =>
+                    _messageBuilder(item, constraints, context),
+                items: _chatMessages,
+                onEndReached: widget.onEndReached,
+                onEndReachedThreshold: widget.onEndReachedThreshold,
+                scrollPhysics: widget.scrollPhysics,
+              ),
             ),
-      ),
-    );
+          );
   }
 
   Positioned _buildScrollLatestMessage(BuildContext context) {
@@ -549,15 +550,17 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                   height: 40,
                   width: 40,
                   alignment: Alignment.center,
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     clipBehavior: Clip.hardEdge,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                      backgroundColor: Colors.white,
                     ),
-                    color: Colors.white,
                     onPressed: () async {
-                      if(widget.unreadCount > 0){
+                      if (widget.unreadCount > 0) {
                         widget.onBeforeScrollToEnd();
                       }
                       _chatListKey.currentState!.scrollToCounter();
@@ -569,9 +572,10 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                if(widget.unreadCount > 0)
+                if (widget.unreadCount > 0)
                   Positioned(
-                    top: 0, right: 0,
+                    top: 0,
+                    right: 0,
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.blue.shade700,
@@ -579,10 +583,13 @@ class _ChatState extends State<Chat> with TickerProviderStateMixin {
                       ),
                       padding: const EdgeInsets.all(3),
                       alignment: Alignment.center,
-                      child: Text(widget.unreadCount.toString(),
-                        style: const TextStyle(fontSize: 10,
+                      child: Text(
+                        widget.unreadCount.toString(),
+                        style: const TextStyle(
+                            fontSize: 10,
                             color: Colors.white,
-                            fontWeight: FontWeight.w600),),
+                            fontWeight: FontWeight.w600),
+                      ),
                     ),
                   )
               ],
