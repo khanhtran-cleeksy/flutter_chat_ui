@@ -94,9 +94,7 @@ class _InputState extends State<Input> {
     super.initState();
     hasInput = widget.inputContent.isNotEmpty;
 
-    if (widget.inputContent
-        .trim()
-        .isNotEmpty) {
+    if (widget.inputContent.trim().isNotEmpty) {
       _textController.clear();
       _textController.text = widget.inputContent;
     }
@@ -151,9 +149,7 @@ class _InputState extends State<Input> {
 
   void _handleTextControllerChange() {
     setState(() {
-      _sendButtonVisible = _textController.text
-          .trim()
-          .isNotEmpty;
+      _sendButtonVisible = _textController.text.trim().isNotEmpty;
     });
   }
 
@@ -167,10 +163,7 @@ class _InputState extends State<Input> {
           backgroundColor: Colors.transparent,
           strokeWidth: 1.5,
           valueColor: AlwaysStoppedAnimation<Color>(
-            InheritedChatTheme
-                .of(context)
-                .theme
-                .inputTextColor,
+            InheritedChatTheme.of(context).theme.inputTextColor,
           ),
         ),
       );
@@ -179,8 +172,7 @@ class _InputState extends State<Input> {
         prefixInput: widget.prefixInput,
         onExpanded: widget.onExpanded,
         showAddButton: !widget.showFooter,
-        showActionIcons: !widget.showFooter && !hasFocusNotifier &&
-            !hasInput,
+        showActionIcons: !widget.showFooter && !hasFocusNotifier && !hasInput,
       );
     }
   }
@@ -197,9 +189,9 @@ class _InputState extends State<Input> {
         shortcuts: {
           LogicalKeySet(LogicalKeyboardKey.enter): const SendMessageIntent(),
           LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.alt):
-          const NewLineIntent(),
+              const NewLineIntent(),
           LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.shift):
-          const NewLineIntent(),
+              const NewLineIntent(),
         },
         child: Actions(
           actions: {
@@ -219,10 +211,7 @@ class _InputState extends State<Input> {
             ),
           },
           child: Padding(
-            padding: InheritedChatTheme
-                .of(context)
-                .theme
-                .inputPadding,
+            padding: InheritedChatTheme.of(context).theme.inputPadding,
             child: Column(
               children: [
                 Padding(
@@ -243,8 +232,7 @@ class _InputState extends State<Input> {
                           Expanded(
                             child: Material(
                               color: Colors.white,
-                              borderRadius: InheritedChatTheme
-                                  .of(context)
+                              borderRadius: InheritedChatTheme.of(context)
                                   .theme
                                   .inputBorderRadius,
                               child: TextField(
@@ -265,30 +253,27 @@ class _InputState extends State<Input> {
                                             color: isEmojiVisible
                                                 ? Colors.grey
                                                 : const Color(0xff2C56EA)
-                                                .withOpacity(0.75),
+                                                    .withOpacity(0.75),
                                           ),
                                           onPressed: () {
                                             isEmojiVisibleNotifier.value =
-                                            !isEmojiVisibleNotifier.value;
+                                                !isEmojiVisibleNotifier.value;
                                           },
                                         );
                                       },
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.all(12.0),
-                                  hintStyle: InheritedChatTheme
-                                      .of(context)
+                                  hintStyle: InheritedChatTheme.of(context)
                                       .theme
                                       .inputTextStyle
                                       .copyWith(
-                                    color: InheritedChatTheme
-                                        .of(context)
-                                        .theme
-                                        .inputTextColor
-                                        .withOpacity(0.5),
-                                  ),
-                                  hintText: InheritedL10n
-                                      .of(context)
+                                        color: InheritedChatTheme.of(context)
+                                            .theme
+                                            .inputTextColor
+                                            .withOpacity(0.5),
+                                      ),
+                                  hintText: InheritedL10n.of(context)
                                       .l10n
                                       .inputPlaceholder,
                                 ),
@@ -307,18 +292,16 @@ class _InputState extends State<Input> {
                                   }
                                 },
                                 onTap: widget.onTextFieldTap,
-                                style: InheritedChatTheme
-                                    .of(context)
+                                style: InheritedChatTheme.of(context)
                                     .theme
                                     .inputTextStyle
                                     .copyWith(
-                                  color: InheritedChatTheme
-                                      .of(context)
-                                      .theme
-                                      .inputTextColor,
-                                ),
+                                      color: InheritedChatTheme.of(context)
+                                          .theme
+                                          .inputTextColor,
+                                    ),
                                 textCapitalization:
-                                TextCapitalization.sentences,
+                                    TextCapitalization.sentences,
                               ),
                             ),
                           ),
@@ -335,11 +318,7 @@ class _InputState extends State<Input> {
                                       alignment: Alignment.centerRight,
                                       child: FittedBox(
                                         child: Text(
-                                          '${NumberFormat.decimalPattern()
-                                              .format(
-                                              lengthText)} / ${NumberFormat
-                                              .decimalPattern().format(
-                                              LIMIT_CHARACTER)}',
+                                          '${NumberFormat.decimalPattern().format(lengthText)} / ${NumberFormat.decimalPattern().format(LIMIT_CHARACTER)}',
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                             fontSize: 10,
@@ -399,7 +378,6 @@ class _InputState extends State<Input> {
                             indicatorColor: Color(0xff2C56EA),
                             iconColor: Colors.grey,
                             iconColorSelected: Color(0xff2C56EA),
-                            progressIndicatorColor: Color(0xff2C56EA),
                             showRecentsTab: true,
                             recentsLimit: 28,
                             // noRecentsText: "No Recents",
