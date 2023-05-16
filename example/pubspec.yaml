@@ -44,7 +44,7 @@ dependencies:
   uuid: ^3.0.7
 
 dependency_overrides:
-  meta: ^1.9.1
+  meta: ^1.8.0
 
 dev_dependencies:
   flutter_test:
