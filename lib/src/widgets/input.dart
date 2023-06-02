@@ -378,7 +378,7 @@ class _InputState extends State<Input> {
                             indicatorColor: Color(0xff2C56EA),
                             iconColor: Colors.grey,
                             iconColorSelected: Color(0xff2C56EA),
-                            showRecentsTab: true,
+                            recentTabBehavior: RecentTabBehavior.RECENT,
                             recentsLimit: 28,
                             // noRecentsText: "No Recents",
                             // noRecentsStyle: TextStyle(
